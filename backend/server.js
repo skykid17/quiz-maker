@@ -1,9 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import quizRoutes from './routes/quizzes.js';
 import progressRoutes from './routes/progress.js';
 import attemptRoutes from './routes/attempts.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -13,7 +18,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/quiz-m
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Routes
+// API Routes
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/attempts', attemptRoutes);
@@ -21,6 +26,14 @@ app.use('/api/attempts', attemptRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Serve static files from frontend dist
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // Error handling middleware
