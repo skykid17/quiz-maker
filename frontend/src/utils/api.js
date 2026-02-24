@@ -54,3 +54,11 @@ export const attemptApi = {
   submit: (data) => api('/attempts', { method: 'POST', body: data }),
   delete: (id) => api(`/attempts/${id}`, { method: 'DELETE' }),
 }
+
+export const draftApi = {
+  getAll: () => api('/drafts'),
+  get: (id) => api(`/drafts/${id}`),
+  save: (data) => api('/drafts', { method: 'POST', body: data }),
+  delete: (id) => api(`/drafts/${id}`, { method: 'DELETE' }),
+  publish: (id) => api(`/drafts/${id}/publish`, { method: 'POST' }),
+}

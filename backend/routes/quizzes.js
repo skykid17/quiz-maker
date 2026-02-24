@@ -10,9 +10,47 @@ const router = express.Router();
 function validateQuizData(data) {
   const errors = [];
   
+  // Validate title
+  if (data.title && data.title.trim().length < 3) {
+    errors.push('Quiz title must be at least 3 characters');
+  }
+  
+  if (data.title && data.title.length > 200) {
+    errors.push('Quiz title must not exceed 200 characters');
+  }
+  
+  // Validate description
+  if (data.description && data.description.length > 1000) {
+    errors.push('Description must not exceed 1000 characters');
+  }
+  
+  // Validate time limit
+  if (data.timeLimit !== null && data.timeLimit !== undefined) {
+    if (data.timeLimit < 5 || data.timeLimit > 180) {
+      errors.push('Time limit must be between 5 and 180 minutes');
+    }
+  }
+  
+  // Validate tags
+  if (data.tags && data.tags.length > 10) {
+    errors.push('Maximum 10 tags allowed');
+  }
+  
+  if (data.tags) {
+    data.tags.forEach((tag, index) => {
+      if (tag.length > 30) {
+        errors.push(`Tag ${index + 1} must not exceed 30 characters`);
+      }
+    });
+  }
+  
   if (!data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
     errors.push('At least one question is required');
     return errors;
+  }
+  
+  if (data.questions.length > 100) {
+    errors.push('Maximum 100 questions allowed');
   }
 
   data.questions.forEach((q, qIndex) => {
@@ -20,6 +58,8 @@ function validateQuizData(data) {
     const questionText = q.text || q.question;
     if (!questionText || typeof questionText !== 'string') {
       errors.push(`Question ${qIndex + 1}: question text is required`);
+    } else if (questionText.length < 10) {
+      errors.push(`Question ${qIndex + 1}: question text must be at least 10 characters`);
     }
     
     if (!q.answerOptions || !Array.isArray(q.answerOptions)) {
@@ -27,8 +67,12 @@ function validateQuizData(data) {
       return;
     }
     
-    if (q.answerOptions.length < 2 || q.answerOptions.length > 6) {
-      errors.push(`Question ${qIndex + 1}: must have 2-6 answer options`);
+    if (q.answerOptions.length < 2) {
+      errors.push(`Question ${qIndex + 1}: must have at least 2 answer options`);
+    }
+    
+    if (q.answerOptions.length > 8) {
+      errors.push(`Question ${qIndex + 1}: maximum 8 answer options allowed`);
     }
     
     const correctCount = q.answerOptions.filter(a => a.isCorrect === true).length;
@@ -36,8 +80,15 @@ function validateQuizData(data) {
       errors.push(`Question ${qIndex + 1}: at least one correct answer is required`);
     }
     
+    // Check for duplicate option texts
+    const optionTexts = q.answerOptions.map(a => a.text?.trim()).filter(Boolean);
+    const uniqueTexts = new Set(optionTexts);
+    if (optionTexts.length !== uniqueTexts.size) {
+      errors.push(`Question ${qIndex + 1}: option texts must be unique`);
+    }
+    
     q.answerOptions.forEach((a, aIndex) => {
-      if (!a.text || typeof a.text !== 'string') {
+      if (!a.text || typeof a.text !== 'string' || a.text.trim().length === 0) {
         errors.push(`Question ${qIndex + 1}, Option ${aIndex + 1}: option text is required`);
       }
     });
@@ -52,15 +103,17 @@ function inferQuestionType(answerOptions) {
   return correctCount > 1 ? 'multiple' : 'single';
 }
 
-// Normalize question data (accept both 'text' and 'question' fields)
+// Normalize question data
 function normalizeQuestion(q) {
   return {
     question: q.text || q.question,
     hint: q.hint || '',
+    imageUrl: q.imageUrl || '',
     answerOptions: q.answerOptions.map(a => ({
       text: a.text,
       isCorrect: a.isCorrect,
-      rationale: a.rationale || ''
+      rationale: a.rationale || '',
+      imageUrl: a.imageUrl || ''
     })),
     type: inferQuestionType(q.answerOptions)
   };
@@ -120,7 +173,15 @@ router.get('/:id', async (req, res) => {
 // Create new quiz
 router.post('/', async (req, res) => {
   try {
-    const { title, questions, shareCode } = req.body;
+    const { 
+      title, 
+      description,
+      timeLimit,
+      tags,
+      autoGenerateShareCode,
+      questions, 
+      shareCode 
+    } = req.body;
     
     // Validate
     const errors = validateQuizData(req.body);
@@ -133,8 +194,13 @@ router.post('/', async (req, res) => {
 
     const quiz = new Quiz({
       title: title || 'Untitled Quiz',
+      description: description || '',
+      timeLimit: timeLimit || null,
+      tags: tags || [],
       questions: processedQuestions,
-      shareCode: shareCode || undefined
+      shareCode: autoGenerateShareCode !== false 
+        ? `QUIZ-${uuidv4().substring(0, 8).toUpperCase()}` 
+        : shareCode || undefined
     });
 
     await quiz.save();
@@ -198,6 +264,9 @@ router.post('/import', async (req, res) => {
 
     const quiz = new Quiz({
       title: quizData.title || 'Untitled Quiz',
+      description: quizData.description || '',
+      timeLimit: quizData.timeLimit || null,
+      tags: quizData.tags || [],
       questions: processedQuestions
     });
 
@@ -218,13 +287,18 @@ router.get('/:id/export', async (req, res) => {
 
     const exportData = {
       title: quiz.title,
+      description: quiz.description,
+      timeLimit: quiz.timeLimit,
+      tags: quiz.tags,
       questions: quiz.questions.map(q => ({
         question: q.question,
         hint: q.hint,
+        imageUrl: q.imageUrl,
         answerOptions: q.answerOptions.map(a => ({
           text: a.text,
           isCorrect: a.isCorrect,
-          rationale: a.rationale
+          rationale: a.rationale,
+          imageUrl: a.imageUrl
         }))
       }))
     };

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import quizRoutes from './routes/quizzes.js';
 import progressRoutes from './routes/progress.js';
 import attemptRoutes from './routes/attempts.js';
+import draftRoutes from './routes/drafts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +23,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/attempts', attemptRoutes);
+app.use('/api/drafts', draftRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

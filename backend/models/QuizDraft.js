@@ -9,35 +9,30 @@ const answerOptionSchema = new mongoose.Schema({
 
 const questionSchema = new mongoose.Schema({
   question: { type: String, required: true },
-  text: { type: String }, // Alternative field name for compatibility
   hint: { type: String, default: '' },
   imageUrl: { type: String, default: '' },
   answerOptions: [answerOptionSchema],
   type: { type: String, enum: ['single', 'multiple'], default: 'single' }
 }, { _id: true });
 
-const quizSchema = new mongoose.Schema({
-  title: { type: String, required: true, default: 'Untitled Quiz', maxlength: 200 },
+const draftSchema = new mongoose.Schema({
+  title: { type: String, default: 'Untitled Quiz', maxlength: 200 },
   description: { type: String, maxlength: 1000, default: '' },
-  timeLimit: { type: Number, min: 5, max: 180, default: null }, // minutes, null = no limit
+  timeLimit: { type: Number, min: 5, max: 180, default: null },
   tags: [{ type: String, maxlength: 30 }],
+  autoGenerateShareCode: { type: Boolean, default: true },
   questions: [questionSchema],
-  shareCode: { type: String, unique: true, sparse: true },
+  currentStep: { type: Number, min: 1, max: 3, default: 1 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
 
-// Pre-save middleware to infer question type
-quizSchema.pre('save', function(next) {
+// Pre-save middleware
+draftSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   
+  // Infer question types
   this.questions.forEach(q => {
-    // Use 'text' field if 'question' is not set
-    if (!q.question && q.text) {
-      q.question = q.text;
-    }
-    
-    // Infer question type from answer options
     const correctCount = q.answerOptions.filter(a => a.isCorrect).length;
     q.type = correctCount > 1 ? 'multiple' : 'single';
   });
@@ -45,6 +40,6 @@ quizSchema.pre('save', function(next) {
   next();
 });
 
-const Quiz = mongoose.model('Quiz', quizSchema);
+const QuizDraft = mongoose.model('QuizDraft', draftSchema);
 
-export default Quiz;
+export default QuizDraft;
