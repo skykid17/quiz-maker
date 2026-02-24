@@ -74,10 +74,10 @@ export default function ImportModal({ onClose, onSuccess }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50">
+      <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-lg font-semibold text-gray-900">Import Quiz</h2>
           <button
             onClick={onClose}
@@ -88,10 +88,10 @@ export default function ImportModal({ onClose, onSuccess }) {
         </div>
         
         {/* Tabs */}
-        <div className="flex border-b border-gray-200">
+        <div className="flex border-b border-gray-200 flex-shrink-0 overflow-x-auto">
           <button
             onClick={() => setInputMethod('paste')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${
               inputMethod === 'paste'
                 ? 'text-blue-600 border-b-2 border-blue-600'
                 : 'text-gray-500 hover:text-gray-700'
@@ -101,7 +101,7 @@ export default function ImportModal({ onClose, onSuccess }) {
           </button>
           <button
             onClick={() => setInputMethod('file')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${
               inputMethod === 'file'
                 ? 'text-blue-600 border-b-2 border-blue-600'
                 : 'text-gray-500 hover:text-gray-700'
@@ -111,7 +111,7 @@ export default function ImportModal({ onClose, onSuccess }) {
           </button>
           <button
             onClick={() => setInputMethod('share')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${
               inputMethod === 'share'
                 ? 'text-blue-600 border-b-2 border-blue-600'
                 : 'text-gray-500 hover:text-gray-700'
@@ -121,8 +121,8 @@ export default function ImportModal({ onClose, onSuccess }) {
           </button>
         </div>
         
-        {/* Content */}
-        <div className="p-4">
+        {/* Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-4">
           {inputMethod === 'paste' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -132,7 +132,7 @@ export default function ImportModal({ onClose, onSuccess }) {
                 value={jsonText}
                 onChange={(e) => setJsonText(e.target.value)}
                 placeholder='{"title": "My Quiz", "questions": [...]}'
-                className="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full h-40 sm:h-64 px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
             </div>
           )}
@@ -141,10 +141,10 @@ export default function ImportModal({ onClose, onSuccess }) {
             <div
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-2">Drag and drop a JSON file here</p>
               <p className="text-sm text-gray-400">or click to browse</p>
               <input
@@ -183,11 +183,14 @@ export default function ImportModal({ onClose, onSuccess }) {
             </div>
           )}
           
-          {/* Example Format */}
+          {/* Example Format - Collapsible on mobile */}
           {inputMethod !== 'share' && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-xs font-medium text-gray-500 mb-2">Example Format:</p>
-              <pre className="text-xs text-gray-600 overflow-x-auto">
+            <details className="mt-4">
+              <summary className="p-3 bg-gray-50 rounded-lg cursor-pointer text-sm font-medium text-gray-600 hover:bg-gray-100">
+                Example Format
+              </summary>
+              <div className="p-3 bg-gray-50 rounded-b-lg border-t border-gray-200">
+                <pre className="text-xs text-gray-600 overflow-x-auto whitespace-pre-wrap">
 {`{
   "title": "My Quiz",
   "questions": [
@@ -202,13 +205,14 @@ export default function ImportModal({ onClose, onSuccess }) {
     }
   ]
 }`}
-              </pre>
-            </div>
+                </pre>
+              </div>
+            </details>
           )}
         </div>
         
-        {/* Footer */}
-        <div className="flex justify-end gap-3 p-4 border-t border-gray-200 bg-gray-50">
+        {/* Footer - Sticky on mobile */}
+        <div className="sticky bottom-0 flex justify-end gap-3 p-4 border-t border-gray-200 bg-white flex-shrink-0">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -218,7 +222,7 @@ export default function ImportModal({ onClose, onSuccess }) {
           <button
             onClick={handleImport}
             disabled={loading || (inputMethod !== 'share' && !jsonText.trim()) || (inputMethod === 'share' && !shareCode.trim())}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {loading ? 'Importing...' : 'Import'}
           </button>
