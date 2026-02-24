@@ -46,11 +46,11 @@ export default function Layout({ children }) {
               </Link>
               
               <Link
-                to="/quiz/new"
+                to="/quiz/create"
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Import Quiz</span>
+                <span className="hidden sm:inline">Create Quiz</span>
               </Link>
             </nav>
           </div>
