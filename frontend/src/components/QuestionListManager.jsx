@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { 
   Plus, Edit2, Trash2, GripVertical, ChevronUp, ChevronDown,
   AlertCircle, FileText, Image
@@ -11,30 +11,51 @@ export default function QuestionListManager({ questions, onChange }) {
   const [showQuestionForm, setShowQuestionForm] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [draggedIndex, setDraggedIndex] = useState(null)
+  const [currentQuestion, setCurrentQuestion] = useState(null)
   const dragOverIndexRef = useRef(null)
   
   const handleAddQuestion = () => {
     setEditingIndex(null)
+    setCurrentQuestion(createEmptyQuestion())
     setShowQuestionForm(true)
   }
   
   const handleEditQuestion = (index) => {
     setEditingIndex(index)
+    setCurrentQuestion(questions[index])
     setShowQuestionForm(true)
   }
   
-  const handleSaveQuestion = (question) => {
+  const handleQuestionChange = (updatedQuestion) => {
+    setCurrentQuestion(updatedQuestion)
+    // Also update parent state for existing questions
     if (editingIndex !== null) {
-      // Update existing question
       const newQuestions = [...questions]
-      newQuestions[editingIndex] = question
+      newQuestions[editingIndex] = updatedQuestion
       onChange(newQuestions)
+    }
+  }
+  
+  const handleSaveQuestion = () => {
+    if (!currentQuestion) return
+    
+    if (editingIndex !== null) {
+      // Update existing question - already done in handleQuestionChange
+      setShowQuestionForm(false)
+      setEditingIndex(null)
+      setCurrentQuestion(null)
     } else {
       // Add new question
-      onChange([...questions, question])
+      onChange([...questions, currentQuestion])
+      setShowQuestionForm(false)
+      setCurrentQuestion(null)
     }
+  }
+  
+  const handleCancelQuestion = () => {
     setShowQuestionForm(false)
     setEditingIndex(null)
+    setCurrentQuestion(null)
   }
   
   const handleDeleteQuestion = (index) => {
@@ -223,25 +244,16 @@ export default function QuestionListManager({ questions, onChange }) {
       </div>
       
       {/* Question Form Modal */}
-      {showQuestionForm && (
+      {showQuestionForm && currentQuestion && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <QuestionForm
-                question={editingIndex !== null ? questions[editingIndex] : newQuestion}
+                question={currentQuestion}
                 index={editingIndex}
-                onChange={(q) => {
-                  if (editingIndex !== null) {
-                    const newQuestions = [...questions]
-                    newQuestions[editingIndex] = q
-                    onChange(newQuestions)
-                  }
-                }}
+                onChange={handleQuestionChange}
                 onSave={handleSaveQuestion}
-                onCancel={() => {
-                  setShowQuestionForm(false)
-                  setEditingIndex(null)
-                }}
+                onCancel={handleCancelQuestion}
                 isNew={editingIndex === null}
               />
             </div>
