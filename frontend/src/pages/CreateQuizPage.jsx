@@ -193,8 +193,8 @@ export default function CreateQuizPage() {
       errors.push('At least one question is required')
     } else {
       draftData.questions.forEach((q, index) => {
-        if (!q.question || q.question.trim().length < 10) {
-          errors.push(`Question ${index + 1}: text must be at least 10 characters`)
+        if (!q.question || q.question.trim().length < 5) {
+          errors.push(`Question ${index + 1}: text must be at least 5 characters`)
         }
         
         const correctCount = q.answerOptions?.filter(a => a.isCorrect).length || 0

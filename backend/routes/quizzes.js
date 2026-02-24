@@ -58,8 +58,8 @@ function validateQuizData(data) {
     const questionText = q.text || q.question;
     if (!questionText || typeof questionText !== 'string') {
       errors.push(`Question ${qIndex + 1}: question text is required`);
-    } else if (questionText.length < 10) {
-      errors.push(`Question ${qIndex + 1}: question text must be at least 10 characters`);
+    } else if (questionText.length < 5) {
+      errors.push(`Question ${qIndex + 1}: question text must be at least 5 characters`);
     }
     
     if (!q.answerOptions || !Array.isArray(q.answerOptions)) {
