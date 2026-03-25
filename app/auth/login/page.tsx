@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useLogin } from '@/lib/auth-hooks'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { login, loading, error } = useLogin()
@@ -139,5 +139,13 @@ export default function LoginPage() {
                 </p>
             </div>
         </div>
+    )
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="space-y-6" />}>
+            <LoginPageContent />
+        </Suspense>
     )
 }
