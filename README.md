@@ -62,12 +62,7 @@ A full-stack quiz maker application built with Next.js, Supabase, and Tailwind C
 
 3. **Configure Environment Variables**
 
-   Copy `.env.example` to `.env.local` and fill in your Supabase credentials:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   Edit `.env.local`:
+   Create an `.env.local`, paste the following, and fill in your Supabase credentials:
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
