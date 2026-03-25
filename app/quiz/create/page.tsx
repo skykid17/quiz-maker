@@ -194,7 +194,7 @@ export default function CreateQuizPage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <Link
           href="/"
           className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900"
@@ -207,7 +207,7 @@ export default function CreateQuizPage() {
           <button
             onClick={() => saveDraft()}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 w-full sm:w-auto text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {saving ? 'Saving...' : 'Save Draft'}
@@ -227,36 +227,38 @@ export default function CreateQuizPage() {
       )}
 
       {/* Steps Indicator */}
-      <div className="flex items-center justify-center mb-8">
-        {STEPS.map((step, index) => (
-          <div key={step.id} className="flex items-center">
-            <button
-              onClick={() => setCurrentStep(step.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${currentStep === step.id
+      <div className="mb-8 overflow-x-auto">
+        <div className="min-w-max flex items-center justify-start sm:justify-center">
+          {STEPS.map((step, index) => (
+            <div key={step.id} className="flex items-center">
+              <button
+                onClick={() => setCurrentStep(step.id)}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 min-h-10 rounded-lg transition-colors ${currentStep === step.id
                   ? 'bg-blue-600 text-white'
                   : currentStep > step.id
                     ? 'bg-green-100 text-green-700'
                     : 'bg-gray-100 text-gray-500'
-                }`}
-            >
-              {currentStep > step.id ? (
-                <Check className="w-4 h-4" />
-              ) : (
-                <span className="w-5 h-5 rounded-full bg-current bg-opacity-20 flex items-center justify-center text-sm">
-                  {step.id}
-                </span>
+                  }`}
+              >
+                {currentStep > step.id ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <span className="w-5 h-5 rounded-full bg-current bg-opacity-20 flex items-center justify-center text-sm">
+                    {step.id}
+                  </span>
+                )}
+                {step.title}
+              </button>
+              {index < STEPS.length - 1 && (
+                <div className={`w-8 sm:w-12 h-0.5 mx-1 sm:mx-2 ${currentStep > step.id ? 'bg-green-500' : 'bg-gray-200'}`} />
               )}
-              {step.title}
-            </button>
-            {index < STEPS.length - 1 && (
-              <div className={`w-12 h-0.5 mx-2 ${currentStep > step.id ? 'bg-green-500' : 'bg-gray-200'}`} />
-            )}
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
         {currentStep === 1 && (
           <QuizMetadataForm data={draftData} onChange={handleMetadataChange} />
         )}
@@ -275,11 +277,11 @@ export default function CreateQuizPage() {
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between mt-6">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 mt-6">
         <button
           onClick={handlePrevStep}
           disabled={currentStep === 1}
-          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 w-full sm:w-auto text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50"
         >
           <ArrowLeft className="w-4 h-4" />
           Previous
@@ -288,7 +290,7 @@ export default function CreateQuizPage() {
         {currentStep < 3 ? (
           <button
             onClick={handleNextStep}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2 min-h-10 w-full sm:w-auto bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Next
             <ArrowRight className="w-4 h-4" />
@@ -297,7 +299,7 @@ export default function CreateQuizPage() {
           <button
             onClick={handlePublish}
             disabled={!canPublish || publishing}
-            className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2 min-h-10 w-full sm:w-auto bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
             {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             {publishing ? 'Publishing...' : 'Publish Quiz'}

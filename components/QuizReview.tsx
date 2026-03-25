@@ -51,7 +51,7 @@ export default function QuizReview({ data, summary, onEditStep }: QuizReviewProp
       )}
 
       {/* Quiz Summary Card */}
-      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+      <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -63,7 +63,7 @@ export default function QuizReview({ data, summary, onEditStep }: QuizReviewProp
           </div>
           <button
             onClick={handleEditMetadata}
-            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+            className="h-10 w-10 p-2 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
             aria-label="Edit quiz details"
           >
             <Edit2 className="w-5 h-5" />
@@ -126,13 +126,13 @@ export default function QuizReview({ data, summary, onEditStep }: QuizReviewProp
 
       {/* Questions List */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h3 className="text-lg font-semibold text-gray-900">
             Questions ({data.questions?.length || 0})
           </h3>
           <button
             onClick={handleEditQuestions}
-            className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 w-full sm:w-auto text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm"
           >
             <Edit2 className="w-4 h-4" />
             Edit Questions
@@ -176,7 +176,7 @@ export default function QuizReview({ data, summary, onEditStep }: QuizReviewProp
                         <img
                           src={question.imageUrl}
                           alt="Question"
-                          className="max-w-xs max-h-32 rounded-lg mb-3"
+                          className="w-full max-w-[95vw] sm:max-w-xs max-h-24 sm:max-h-32 rounded-lg mb-3 object-contain"
                         />
                       )}
 
@@ -190,13 +190,13 @@ export default function QuizReview({ data, summary, onEditStep }: QuizReviewProp
                   </div>
 
                   {/* Options */}
-                  <div className="ml-11 space-y-2">
+                  <div className="ml-0 sm:ml-11 space-y-2">
                     {question.answerOptions?.map((option, optIndex) => (
                       <div
                         key={option.id || optIndex}
                         className={`flex items-start gap-2 p-2 rounded-lg ${option.isCorrect
-                            ? 'bg-green-50 border border-green-200'
-                            : 'bg-gray-50'
+                          ? 'bg-green-50 border border-green-200'
+                          : 'bg-gray-50'
                           }`}
                       >
                         <div className="flex-shrink-0 mt-0.5">
@@ -210,8 +210,8 @@ export default function QuizReview({ data, summary, onEditStep }: QuizReviewProp
                         <div className="flex-1 min-w-0">
                           <p
                             className={`text-sm ${option.isCorrect
-                                ? 'text-green-800 font-medium'
-                                : 'text-gray-700'
+                              ? 'text-green-800 font-medium'
+                              : 'text-gray-700'
                               }`}
                           >
                             {option.text || 'Empty option'}
@@ -234,7 +234,7 @@ export default function QuizReview({ data, summary, onEditStep }: QuizReviewProp
                   </div>
 
                   {/* Question Stats */}
-                  <div className="mt-3 ml-11 flex items-center gap-3 text-xs text-gray-500">
+                  <div className="mt-3 ml-0 sm:ml-11 flex flex-wrap items-center gap-3 text-xs text-gray-500">
                     <span>{question.answerOptions?.length || 0} options</span>
                     <span>•</span>
                     <span>{correctCount} correct</span>

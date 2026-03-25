@@ -89,17 +89,18 @@ export default function ImageUpload({
       )}
 
       {value ? (
-        <div className="relative inline-block">
+        <div className="relative inline-block max-w-full">
           <img
             src={value}
             alt="Uploaded"
-            className="max-w-xs max-h-40 rounded-lg border border-gray-300"
+            className="w-full max-w-[95vw] sm:max-w-xs max-h-32 sm:max-h-40 rounded-lg border border-gray-300 object-contain"
           />
           <button
             onClick={handleRemove}
-            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+            className="absolute -top-3 -right-3 h-10 w-10 sm:h-8 sm:w-8 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow"
+            aria-label="Remove uploaded image"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5 sm:w-4 sm:h-4" />
           </button>
         </div>
       ) : (
@@ -108,16 +109,16 @@ export default function ImageUpload({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onClick={() => inputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${dragOver
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-gray-400'
+          className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center cursor-pointer transition-colors ${dragOver
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300 hover:border-gray-400'
             } ${error ? 'border-red-500 bg-red-50' : ''}`}
         >
           {loading ? (
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           ) : (
             <>
-              <Image className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <Image className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mx-auto mb-2" />
               <p className="text-sm text-gray-600">Click or drag image here</p>
               <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
             </>

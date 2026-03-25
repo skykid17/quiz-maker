@@ -284,7 +284,7 @@ export default function TakeQuizPage() {
           Back to quiz
         </Link>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-8">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
           <p className="text-gray-600 mb-6">
             {quiz.questions.length} questions
@@ -336,7 +336,7 @@ export default function TakeQuizPage() {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <Link
           href={`/quiz/${id}`}
           className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900"
@@ -372,7 +372,7 @@ export default function TakeQuizPage() {
       </div>
 
       {/* Question Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6">
         {/* Question */}
         <div className="mb-6">
           <div className="flex items-start justify-between gap-4">
@@ -380,9 +380,9 @@ export default function TakeQuizPage() {
             {question.hint && (
               <button
                 onClick={() => setShowHint(!showHint)}
-                className={`flex-shrink-0 p-2 rounded-lg transition-colors ${showHint
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                className={`flex-shrink-0 h-10 w-10 p-2 flex items-center justify-center rounded-lg transition-colors ${showHint
+                  ? 'bg-yellow-100 text-yellow-700'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 title="Show hint"
               >
@@ -395,7 +395,7 @@ export default function TakeQuizPage() {
             <img
               src={question.imageUrl}
               alt="Question"
-              className="mt-4 rounded-lg max-h-64 object-contain"
+              className="mt-4 rounded-lg max-h-64 max-w-full object-contain"
             />
           )}
 
@@ -423,23 +423,23 @@ export default function TakeQuizPage() {
                 onClick={() => handleAnswerSelect(option.id)}
                 disabled={showFeedback}
                 className={`w-full p-4 rounded-lg border-2 text-left transition-all ${showCorrect
-                    ? 'border-green-500 bg-green-50'
-                    : showWrong
-                      ? 'border-red-500 bg-red-50'
-                      : isSelected
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-green-500 bg-green-50'
+                  : showWrong
+                    ? 'border-red-500 bg-red-50'
+                    : isSelected
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
                   } ${showFeedback ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${showCorrect
-                        ? 'border-green-500 bg-green-500 text-white'
-                        : showWrong
-                          ? 'border-red-500 bg-red-500 text-white'
-                          : isSelected
-                            ? 'border-blue-500 bg-blue-500 text-white'
-                            : 'border-gray-300'
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : showWrong
+                        ? 'border-red-500 bg-red-500 text-white'
+                        : isSelected
+                          ? 'border-blue-500 bg-blue-500 text-white'
+                          : 'border-gray-300'
                       }`}
                   >
                     {showCorrect && <Check className="w-3 h-3" />}
@@ -452,7 +452,7 @@ export default function TakeQuizPage() {
                       <img
                         src={option.imageUrl}
                         alt="Option"
-                        className="mt-2 rounded max-h-32 object-contain"
+                        className="mt-2 rounded max-h-32 max-w-full object-contain"
                       />
                     )}
                     {showFeedback && option.rationale && (
@@ -487,21 +487,21 @@ export default function TakeQuizPage() {
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <button
           onClick={handlePrevious}
           disabled={currentIndex === 0}
-          className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ArrowLeft className="w-4 h-4" />
           Previous
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
           {!showFeedback && (
             <button
               onClick={handleSkip}
-              className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900"
+              className="inline-flex items-center gap-2 px-4 py-2 min-h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
             >
               <SkipForward className="w-4 h-4" />
               Skip
@@ -511,7 +511,7 @@ export default function TakeQuizPage() {
           {mode === 'immediate' && !showFeedback && hasAnswer && (
             <button
               onClick={handleSubmitAnswer}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 min-h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               Check Answer
             </button>
@@ -520,7 +520,7 @@ export default function TakeQuizPage() {
           {(mode === 'end' || showFeedback) && !isLastQuestion && (
             <button
               onClick={handleNext}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 min-h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               Next
               <ArrowRight className="w-4 h-4" />
@@ -531,7 +531,7 @@ export default function TakeQuizPage() {
             <button
               onClick={() => setShowSubmitConfirm(true)}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-6 py-2 min-h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -550,33 +550,35 @@ export default function TakeQuizPage() {
       </div>
 
       {/* Question Navigation Dots */}
-      <div className="mt-8 flex flex-wrap justify-center gap-2">
-        {quiz.questions.map((q, idx) => {
-          const hasAnswerForQ = (answers[q.id]?.length || 0) > 0
-          const isSkipped = skippedQuestions.includes(q.id)
-          const isCurrent = idx === currentIndex
+      <div className="mt-8 overflow-x-auto pb-1">
+        <div className="inline-flex min-w-max items-center gap-2 px-1">
+          {quiz.questions.map((q, idx) => {
+            const hasAnswerForQ = (answers[q.id]?.length || 0) > 0
+            const isSkipped = skippedQuestions.includes(q.id)
+            const isCurrent = idx === currentIndex
 
-          return (
-            <button
-              key={q.id}
-              onClick={() => {
-                setCurrentIndex(idx)
-                setShowFeedback(false)
-                setShowHint(false)
-              }}
-              className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${isCurrent
+            return (
+              <button
+                key={q.id}
+                onClick={() => {
+                  setCurrentIndex(idx)
+                  setShowFeedback(false)
+                  setShowHint(false)
+                }}
+                className={`w-9 h-9 rounded-full text-sm font-medium transition-colors ${isCurrent
                   ? 'bg-blue-600 text-white'
                   : hasAnswerForQ
                     ? 'bg-green-100 text-green-800 hover:bg-green-200'
                     : isSkipped
                       ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-            >
-              {idx + 1}
-            </button>
-          )
-        })}
+                  }`}
+              >
+                {idx + 1}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Submit Confirmation Modal */}
@@ -592,17 +594,17 @@ export default function TakeQuizPage() {
                 </span>
               )}
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setShowSubmitConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 min-h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 Continue Quiz
               </button>
               <button
                 onClick={handleSubmitQuiz}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 min-h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
               </button>

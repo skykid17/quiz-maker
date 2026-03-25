@@ -135,14 +135,14 @@ export default function QuestionListManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Questions</h2>
           <p className="text-gray-600">Add questions to your quiz. Drag to reorder.</p>
         </div>
         <button
           onClick={handleAddQuestion}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 w-full sm:w-auto bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Question
@@ -223,39 +223,41 @@ export default function QuestionListManager({
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5 sm:gap-1">
                   {/* Mobile Reorder Buttons */}
-                  <div className="flex sm:hidden">
+                  <div className="flex sm:hidden gap-0.5">
                     <button
                       onClick={() => handleMoveQuestion(index, -1)}
                       disabled={index === 0}
-                      className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                      className="h-10 w-10 p-2 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-30"
+                      aria-label="Move question up"
                     >
-                      <ChevronUp className="w-4 h-4" />
+                      <ChevronUp className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleMoveQuestion(index, 1)}
                       disabled={index === questions.length - 1}
-                      className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                      className="h-10 w-10 p-2 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-30"
+                      aria-label="Move question down"
                     >
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="w-5 h-5" />
                     </button>
                   </div>
 
                   <button
                     onClick={() => handleEditQuestion(index)}
-                    className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                    className="h-10 w-10 sm:h-auto sm:w-auto p-2 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     aria-label="Edit question"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-5 h-5 sm:w-4 sm:h-4" />
                   </button>
 
                   <button
                     onClick={() => handleDeleteQuestion(index)}
-                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                    className="h-10 w-10 sm:h-auto sm:w-auto p-2 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     aria-label="Delete question"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               </div>
@@ -266,9 +268,9 @@ export default function QuestionListManager({
 
       {/* Question Form Modal */}
       {showQuestionForm && currentQuestion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-t-xl sm:rounded-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6">
               <QuestionForm
                 question={currentQuestion}
                 index={editingIndex}
@@ -294,16 +296,16 @@ export default function QuestionListManager({
             <p className="text-gray-600 mb-6">
               Are you sure you want to delete this question? This action cannot be undone.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 min-h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="px-4 py-2 min-h-10 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
                 Delete
               </button>

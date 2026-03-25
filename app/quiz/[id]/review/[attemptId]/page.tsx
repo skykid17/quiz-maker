@@ -190,7 +190,7 @@ export default function ReviewPage() {
                 </div>
 
                 {reviewStats && (
-                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-4">
                         <div className="rounded-lg border border-green-200 bg-green-50 p-3">
                             <p className="text-xs text-green-700">Correct</p>
                             <p className="text-xl font-semibold text-green-800">{reviewStats.strictCorrect}</p>
@@ -229,8 +229,8 @@ export default function ReviewPage() {
                     const perQuestionDuration = answer?.timeTaken || reviewStats?.avgTimePerQuestion || 0
 
                     return (
-                        <article key={question.id} className="bg-white rounded-xl border border-gray-200 p-6">
-                            <div className="flex items-start justify-between gap-4 mb-4">
+                        <article key={question.id} className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                                 <div className="flex items-start gap-3">
                                     <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-semibold mt-0.5">
                                         {index + 1}
@@ -243,7 +243,7 @@ export default function ReviewPage() {
                                     </div>
                                 </div>
 
-                                <div className="text-right">
+                                <div className="text-left sm:text-right">
                                     <p className="text-sm text-gray-500 mb-1">Time</p>
                                     <p className="text-sm font-medium text-gray-800">{formatDuration(perQuestionDuration)}</p>
                                 </div>
@@ -282,7 +282,7 @@ export default function ReviewPage() {
                                 <img
                                     src={question.imageUrl}
                                     alt="Question"
-                                    className="rounded-lg border border-gray-200 max-h-56 object-contain mb-4"
+                                    className="rounded-lg border border-gray-200 max-h-56 max-w-full object-contain mb-4"
                                 />
                             )}
 
@@ -301,7 +301,7 @@ export default function ReviewPage() {
 
                                     return (
                                         <div key={option.id} className={`rounded-lg border p-3 ${optionClass}`}>
-                                            <div className="flex items-start justify-between gap-3">
+                                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm text-gray-900">{option.text}</p>
                                                     {option.rationale && (
@@ -310,7 +310,7 @@ export default function ReviewPage() {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-wrap items-center gap-2">
                                                     {isSelected && (
                                                         <span className="text-[11px] font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700">
                                                             Your answer
@@ -336,7 +336,7 @@ export default function ReviewPage() {
                 })}
             </div>
 
-            <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white rounded-xl border border-gray-200 p-5">
                 <div>
                     <p className="text-gray-900 font-semibold flex items-center gap-2">
                         <Trophy className="w-5 h-5 text-amber-500" />
@@ -348,7 +348,7 @@ export default function ReviewPage() {
                 </div>
                 <Link
                     href={`/quiz/${quiz.id}/take`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 w-full sm:w-auto rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                 >
                     Retake Quiz
                 </Link>

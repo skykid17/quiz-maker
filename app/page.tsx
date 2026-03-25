@@ -86,7 +86,7 @@ function QuizListContent() {
 
         <button
           onClick={() => setShowImport(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 w-full sm:w-auto bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Download className="w-4 h-4" />
           Import Quiz
@@ -133,7 +133,7 @@ function QuizListContent() {
 
       {/* Quiz Grid */}
       {filteredQuizzes.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredQuizzes.map((quiz) => (
             <QuizCard key={quiz.id} quiz={quiz} onDelete={() => setDeleteConfirm(quiz.id)} />
           ))}
@@ -162,16 +162,16 @@ function QuizListContent() {
               This will delete the quiz and all its attempt history. This action cannot be
               undone.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 min-h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="px-4 py-2 min-h-10 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
                 Delete
               </button>
@@ -237,13 +237,14 @@ function QuizCard({ quiz, onDelete }: QuizCardProps) {
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
         <Link
           href={`/quiz/${quiz.id}/take`}
-          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          className="text-blue-600 hover:text-blue-700 text-sm font-medium min-h-10 inline-flex items-center"
         >
           Start Quiz →
         </Link>
         <button
           onClick={onDelete}
-          className="text-gray-400 hover:text-red-600 transition-colors"
+          className="h-10 w-10 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          aria-label="Delete quiz"
         >
           <Trash2 className="w-4 h-4" />
         </button>

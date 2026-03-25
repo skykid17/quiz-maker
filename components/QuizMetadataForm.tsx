@@ -99,14 +99,14 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
             }`}
           maxLength={200}
         />
-        <div className="flex items-center justify-between mt-1">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-1 mt-1">
           {errors.title && (
             <div className="flex items-center gap-2 text-red-600 text-sm">
               <AlertCircle className="w-4 h-4" />
               {errors.title}
             </div>
           )}
-          <span className="text-sm text-gray-500 ml-auto">
+          <span className="text-xs sm:text-sm text-gray-500 sm:ml-auto whitespace-nowrap">
             {(data.title || '').length}/200
           </span>
         </div>
@@ -131,14 +131,14 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
             }`}
           maxLength={1000}
         />
-        <div className="flex items-center justify-between mt-1">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-1 mt-1">
           {errors.description && (
             <div className="flex items-center gap-2 text-red-600 text-sm">
               <AlertCircle className="w-4 h-4" />
               {errors.description}
             </div>
           )}
-          <span className="text-sm text-gray-500 ml-auto">
+          <span className="text-xs sm:text-sm text-gray-500 sm:ml-auto whitespace-nowrap">
             {(data.description || '').length}/1000
           </span>
         </div>
@@ -184,7 +184,7 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
           <Tag className="w-4 h-4 inline mr-2" />
           Tags/Categories
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             id="tags"
@@ -198,7 +198,7 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
           <button
             onClick={handleAddTag}
             disabled={!tagInput.trim() || (data.tags?.length ?? 0) >= 10}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 min-h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add
           </button>
@@ -219,7 +219,7 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
                 className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
               >
                 {tag}
-                <button onClick={() => handleRemoveTag(tag)} className="hover:text-blue-900">
+                <button onClick={() => handleRemoveTag(tag)} className="h-6 w-6 flex items-center justify-center hover:text-blue-900" aria-label={`Remove tag ${tag}`}>
                   <X className="w-3 h-3" />
                 </button>
               </span>
@@ -233,13 +233,13 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
       </div>
 
       {/* Auto-generate Share Code */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         <input
           type="checkbox"
           id="autoGenerateShareCode"
           checked={data.autoGenerateShareCode !== false}
           onChange={(e) => onChange({ autoGenerateShareCode: e.target.checked })}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          className="w-5 h-5 sm:w-4 sm:h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-0.5"
         />
         <label htmlFor="autoGenerateShareCode" className="text-sm text-gray-700">
           Automatically generate a share code for this quiz

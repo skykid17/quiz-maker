@@ -71,7 +71,7 @@ export default function QuestionForm({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h3 className="text-lg font-semibold text-gray-900">
           {isNew ? 'New Question' : `Edit Question ${(index ?? 0) + 1}`}
         </h3>
@@ -134,7 +134,7 @@ export default function QuestionForm({
       {/* Advanced Options Toggle */}
       <button
         onClick={() => setShowAdvanced(!showAdvanced)}
-        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
+        className="inline-flex items-center gap-2 px-2 py-2 min-h-10 text-sm text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100"
       >
         {showAdvanced ? (
           <ChevronUp className="w-4 h-4" />
@@ -194,7 +194,7 @@ export default function QuestionForm({
         {question.answerOptions.length < 8 && (
           <button
             onClick={handleAddOption}
-            className="mt-3 flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm"
+            className="mt-3 inline-flex items-center gap-2 px-4 py-2 min-h-10 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm"
           >
             <Plus className="w-4 h-4" />
             Add Option
@@ -203,16 +203,16 @@ export default function QuestionForm({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-gray-200">
         <button
           onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="px-4 py-2 min-h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-6 py-2 min-h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           {isNew ? 'Add Question' : 'Save Changes'}
         </button>

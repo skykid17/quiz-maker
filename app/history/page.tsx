@@ -67,7 +67,7 @@ export default function HistoryPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
         <h1 className="text-2xl font-bold">Attempt History</h1>
         <p className="text-gray-500">{attempts.length} attempt(s)</p>
       </div>
@@ -82,10 +82,10 @@ export default function HistoryPage() {
               key={attempt.id}
               className="bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">{quizTitle}</h3>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                  <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {new Date(attempt.completed_at).toLocaleDateString('en-US', {
@@ -105,14 +105,14 @@ export default function HistoryPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
+                <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6">
+                  <div className="text-left sm:text-right">
                     <span
                       className={`text-lg font-semibold ${(attempt.percentage ?? 0) >= 70
-                          ? 'text-green-600'
-                          : (attempt.percentage ?? 0) >= 50
-                            ? 'text-amber-600'
-                            : 'text-red-600'
+                        ? 'text-green-600'
+                        : (attempt.percentage ?? 0) >= 50
+                          ? 'text-amber-600'
+                          : 'text-red-600'
                         }`}
                     >
                       {attempt.percentage ?? 0}%
@@ -125,14 +125,14 @@ export default function HistoryPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/quiz/${quizId}/review/${attempt.id}`}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="h-10 w-10 p-2 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Review"
                     >
                       <Eye className="w-5 h-5" />
                     </Link>
                     <button
                       onClick={() => setDeleteConfirm(attempt.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="h-10 w-10 p-2 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-5 h-5" />
@@ -153,16 +153,16 @@ export default function HistoryPage() {
             <p className="text-gray-600 mb-4">
               This action cannot be undone. The attempt record will be permanently removed.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="px-4 py-2 min-h-10 text-gray-600 hover:bg-gray-100 rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 min-h-10 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 Delete
               </button>

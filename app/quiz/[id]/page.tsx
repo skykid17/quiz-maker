@@ -154,7 +154,7 @@ export default function QuizDetailPage() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex-1">
             {editing ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <input
                   type="text"
                   value={newTitle}
@@ -164,13 +164,13 @@ export default function QuizDetailPage() {
                 />
                 <button
                   onClick={handleRename}
-                  className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                  className="px-3 py-2 min-h-10 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setEditing(false)}
-                  className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded text-sm"
+                  className="px-3 py-2 min-h-10 text-gray-600 hover:bg-gray-100 rounded text-sm"
                 >
                   Cancel
                 </button>
@@ -183,7 +183,8 @@ export default function QuizDetailPage() {
                     setNewTitle(quiz.title)
                     setEditing(true)
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="h-10 w-10 p-2 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                  aria-label="Rename quiz"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -225,31 +226,31 @@ export default function QuizDetailPage() {
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3 mb-6">
         <button
           onClick={() => setShowShare(true)}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <Share2 className="w-4 h-4" />
           Share
         </button>
         <button
           onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <Upload className="w-4 h-4" />
           Export
         </button>
         <button
           onClick={handleDuplicate}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <Copy className="w-4 h-4" />
           Duplicate
         </button>
         <button
           onClick={() => setDeleteConfirm(true)}
-          className="flex items-center gap-2 px-4 py-2 text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-10 text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50"
         >
           <Trash2 className="w-4 h-4" />
           Delete
@@ -264,9 +265,9 @@ export default function QuizDetailPage() {
             {attempts.slice(0, 5).map((attempt) => (
               <div
                 key={attempt.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 bg-gray-50 rounded-lg"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <span className={`font-semibold ${getScoreColor(attempt.percentage)}`}>
                     {attempt.percentage}%
                   </span>
@@ -274,7 +275,7 @@ export default function QuizDetailPage() {
                     {formatDuration(attempt.duration)}
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between sm:justify-end gap-3">
                   <span className="text-sm text-gray-500">
                     {new Date(attempt.completed_at).toLocaleDateString()}
                   </span>
@@ -302,16 +303,16 @@ export default function QuizDetailPage() {
             <p className="text-gray-600 mb-6">
               This will permanently delete the quiz and all attempt history.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="px-4 py-2 min-h-10 text-gray-600 hover:bg-gray-100 rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 min-h-10 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 Delete
               </button>
