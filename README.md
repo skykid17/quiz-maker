@@ -316,5 +316,3 @@ This project is open source and available under the MIT License.
 - Hosted on Zo Computer
 
 ---
-
-Made with ❤️ for educators and learners everywhere
