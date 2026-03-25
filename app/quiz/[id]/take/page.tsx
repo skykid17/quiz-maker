@@ -86,9 +86,9 @@ export default function TakeQuizPage() {
 
     try {
       await progressApi.save(id, {
-        currentQuestionIndex: currentIndex,
+        current_question_index: currentIndex,
         answers,
-        skippedQuestions,
+        skipped_questions: skippedQuestions,
         mode,
       })
       hasUnsavedChanges.current = false
@@ -380,11 +380,10 @@ export default function TakeQuizPage() {
             {question.hint && (
               <button
                 onClick={() => setShowHint(!showHint)}
-                className={`flex-shrink-0 p-2 rounded-lg transition-colors ${
-                  showHint
+                className={`flex-shrink-0 p-2 rounded-lg transition-colors ${showHint
                     ? 'bg-yellow-100 text-yellow-700'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                  }`}
                 title="Show hint"
               >
                 <Lightbulb className="w-5 h-5" />
@@ -423,27 +422,25 @@ export default function TakeQuizPage() {
                 key={option.id}
                 onClick={() => handleAnswerSelect(option.id)}
                 disabled={showFeedback}
-                className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-                  showCorrect
+                className={`w-full p-4 rounded-lg border-2 text-left transition-all ${showCorrect
                     ? 'border-green-500 bg-green-50'
                     : showWrong
                       ? 'border-red-500 bg-red-50'
                       : isSelected
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
-                } ${showFeedback ? 'cursor-default' : 'cursor-pointer'}`}
+                  } ${showFeedback ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <div className="flex items-start gap-3">
                   <div
-                    className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
-                      showCorrect
+                    className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${showCorrect
                         ? 'border-green-500 bg-green-500 text-white'
                         : showWrong
                           ? 'border-red-500 bg-red-500 text-white'
                           : isSelected
                             ? 'border-blue-500 bg-blue-500 text-white'
                             : 'border-gray-300'
-                    }`}
+                      }`}
                   >
                     {showCorrect && <Check className="w-3 h-3" />}
                     {showWrong && <X className="w-3 h-3" />}
@@ -471,9 +468,8 @@ export default function TakeQuizPage() {
         {/* Immediate Feedback Result */}
         {showFeedback && (
           <div
-            className={`mt-6 p-4 rounded-lg flex items-center gap-3 ${
-              isCorrect ? 'bg-green-50' : 'bg-red-50'
-            }`}
+            className={`mt-6 p-4 rounded-lg flex items-center gap-3 ${isCorrect ? 'bg-green-50' : 'bg-red-50'
+              }`}
           >
             {isCorrect ? (
               <>
@@ -568,15 +564,14 @@ export default function TakeQuizPage() {
                 setShowFeedback(false)
                 setShowHint(false)
               }}
-              className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
-                isCurrent
+              className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${isCurrent
                   ? 'bg-blue-600 text-white'
                   : hasAnswerForQ
                     ? 'bg-green-100 text-green-800 hover:bg-green-200'
                     : isSkipped
                       ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {idx + 1}
             </button>

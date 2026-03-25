@@ -1,5 +1,5 @@
--- Migration: Initial schema for Quiz Maker application
--- Creates tables: quizzes, quiz_drafts, attempts, progress
+-- Migration: Initial schema with authentication and RLS for Quiz Maker
+-- This consolidated migration includes database schema, auth isolation, and storage policies.
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -9,6 +9,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ===================
 CREATE TABLE quizzes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   title VARCHAR(200) NOT NULL DEFAULT 'Untitled Quiz',
   description TEXT DEFAULT '',
   time_limit INTEGER CHECK (time_limit IS NULL OR (time_limit >= 5 AND time_limit <= 180)),
@@ -41,6 +42,7 @@ CREATE TABLE quizzes (
 -- ===================
 CREATE TABLE quiz_drafts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   title VARCHAR(200) DEFAULT 'Untitled Quiz',
   description TEXT DEFAULT '',
   time_limit INTEGER CHECK (time_limit IS NULL OR (time_limit >= 5 AND time_limit <= 180)),
@@ -58,6 +60,7 @@ CREATE TABLE quiz_drafts (
 -- ===================
 CREATE TABLE attempts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   quiz_id UUID NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
 
   -- Answers stored as JSONB array
@@ -85,6 +88,7 @@ CREATE TABLE attempts (
 -- ===================
 CREATE TABLE progress (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   quiz_id UUID NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
   current_question_index INTEGER DEFAULT 0,
 
@@ -96,8 +100,8 @@ CREATE TABLE progress (
   started_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-  -- One progress record per quiz (without auth, this is global)
-  UNIQUE(quiz_id)
+  -- One progress record per user per quiz
+  CONSTRAINT progress_quiz_user_id_unique UNIQUE(quiz_id, user_id)
 );
 
 -- ===================
@@ -105,9 +109,20 @@ CREATE TABLE progress (
 -- ===================
 CREATE INDEX idx_quizzes_updated_at ON quizzes(updated_at DESC);
 CREATE INDEX idx_quizzes_share_code ON quizzes(share_code) WHERE share_code IS NOT NULL;
+CREATE INDEX idx_quizzes_user_id ON quizzes(user_id);
+CREATE INDEX idx_quizzes_user_updated ON quizzes(user_id, updated_at DESC);
+
+CREATE INDEX idx_quiz_drafts_user_id ON quiz_drafts(user_id);
+CREATE INDEX idx_quiz_drafts_user_updated ON quiz_drafts(user_id, updated_at DESC);
+
 CREATE INDEX idx_attempts_quiz_id ON attempts(quiz_id);
 CREATE INDEX idx_attempts_completed_at ON attempts(completed_at DESC);
+CREATE INDEX idx_attempts_user_id ON attempts(user_id);
+CREATE INDEX idx_attempts_user_quiz ON attempts(user_id, quiz_id);
+
 CREATE INDEX idx_progress_quiz_id ON progress(quiz_id);
+CREATE INDEX idx_progress_user_id ON progress(user_id);
+CREATE INDEX idx_progress_user_quiz ON progress(user_id, quiz_id);
 
 -- ===================
 -- AUTO-UPDATE TRIGGER FOR updated_at
@@ -133,15 +148,97 @@ CREATE TRIGGER progress_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ===================
--- ROW LEVEL SECURITY (disabled for now - no auth)
+-- ROW LEVEL SECURITY
 -- ===================
 ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quiz_drafts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE progress ENABLE ROW LEVEL SECURITY;
 
--- Allow anonymous access (for initial no-auth implementation)
-CREATE POLICY "Allow all access to quizzes" ON quizzes FOR ALL USING (true);
-CREATE POLICY "Allow all access to quiz_drafts" ON quiz_drafts FOR ALL USING (true);
-CREATE POLICY "Allow all access to attempts" ON attempts FOR ALL USING (true);
-CREATE POLICY "Allow all access to progress" ON progress FOR ALL USING (true);
+-- Restrictive user-scoped policies
+CREATE POLICY "Users can SELECT own quizzes"
+ON quizzes FOR SELECT
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can INSERT own quizzes"
+ON quizzes FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can UPDATE own quizzes"
+ON quizzes FOR UPDATE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid())
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can DELETE own quizzes"
+ON quizzes FOR DELETE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can SELECT own drafts"
+ON quiz_drafts FOR SELECT
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can INSERT own drafts"
+ON quiz_drafts FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can UPDATE own drafts"
+ON quiz_drafts FOR UPDATE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid())
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can DELETE own drafts"
+ON quiz_drafts FOR DELETE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can SELECT own attempts"
+ON attempts FOR SELECT
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can INSERT own attempts"
+ON attempts FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can UPDATE own attempts"
+ON attempts FOR UPDATE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid())
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can DELETE own attempts"
+ON attempts FOR DELETE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can SELECT own progress"
+ON progress FOR SELECT
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can INSERT own progress"
+ON progress FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can UPDATE own progress"
+ON progress FOR UPDATE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid())
+WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+CREATE POLICY "Users can DELETE own progress"
+ON progress FOR DELETE
+USING (auth.uid() IS NOT NULL AND user_id = auth.uid());
+
+-- ===================
+-- STORAGE BUCKET + POLICIES
+-- ===================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('quiz-images', 'quiz-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Public Access" ON storage.objects
+  FOR SELECT USING (bucket_id = 'quiz-images');
+
+CREATE POLICY "Allow Uploads" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'quiz-images');
+
+CREATE POLICY "Allow Updates" ON storage.objects
+  FOR UPDATE USING (bucket_id = 'quiz-images');
+
+CREATE POLICY "Allow Deletes" ON storage.objects
+  FOR DELETE USING (bucket_id = 'quiz-images');

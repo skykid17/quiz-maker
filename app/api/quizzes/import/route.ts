@@ -6,6 +6,16 @@ import { processQuestions } from '@/lib/quizHelpers'
 // POST /api/quizzes/import - Import quiz from JSON
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const quizData = await request.json()
 
   // Validate
@@ -21,6 +31,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await (supabase as any)
     .from('quizzes')
     .insert({
+      user_id: user.id,
       title: quizData.title || 'Untitled Quiz',
       description: quizData.description || '',
       time_limit: quizData.timeLimit || null,

@@ -10,11 +10,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params
   const supabase = await createClient()
 
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   // Get original quiz
   const { data: original, error: fetchError } = await supabase
     .from('quizzes')
     .select('*')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single()
 
   if (fetchError) {
@@ -31,6 +41,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { data: duplicate, error: insertError } = await (supabase as any)
     .from('quizzes')
     .insert({
+      user_id: user.id,
       title: `${originalData.title} (Copy)`,
       description: originalData.description,
       time_limit: originalData.time_limit,

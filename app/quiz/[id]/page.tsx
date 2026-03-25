@@ -8,7 +8,7 @@ import {
   Edit2,
   Trash2,
   Share2,
-  Download,
+  Upload,
   Copy,
   Clock,
   Trophy,
@@ -237,7 +237,7 @@ export default function QuizDetailPage() {
           onClick={handleExport}
           className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
-          <Download className="w-4 h-4" />
+          <Upload className="w-4 h-4" />
           Export
         </button>
         <button

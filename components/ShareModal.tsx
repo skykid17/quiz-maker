@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Copy, Check, Share2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { X, Copy, Check, Share2, AlertCircle } from 'lucide-react'
+import { quizApi } from '@/lib/api'
 import type { Quiz } from '@/lib/supabase/types'
 
 interface ShareModalProps {
@@ -11,14 +12,30 @@ interface ShareModalProps {
 
 export default function ShareModal({ quiz, onClose }: ShareModalProps) {
   const [copied, setCopied] = useState(false)
+  const [shareCode, setShareCode] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadShareCode() {
+      try {
+        setLoading(true)
+        setError(null)
+        const { shareCode: generatedCode } = await quizApi.share(quiz.id)
+        setShareCode(generatedCode)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to generate share code')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadShareCode()
+  }, [quiz.id])
 
   const handleCopy = async () => {
-    const shareData = {
-      title: quiz.title,
-      questions: quiz.questions,
-    }
-    const encoded = btoa(encodeURIComponent(JSON.stringify(shareData)))
-    await navigator.clipboard.writeText(encoded)
+    if (!shareCode) return
+    await navigator.clipboard.writeText(shareCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -39,22 +56,27 @@ export default function ShareModal({ quiz, onClose }: ShareModalProps) {
         <div className="p-4">
           <p className="text-sm text-gray-600 mb-4">
             Share this quiz by copying the code below. Others can import it using the
-            &quot;Import from Code&quot; option.
+            &quot;Share Code&quot; option.
           </p>
 
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
           <div className="bg-gray-50 rounded-lg p-3 mb-4">
-            <code className="text-xs break-all text-gray-700">
-              {btoa(
-                encodeURIComponent(
-                  JSON.stringify({ title: quiz.title, questions: quiz.questions })
-                )
-              ).substring(0, 100)}
-              ...
-            </code>
+            {loading ? (
+              <p className="text-sm text-gray-500">Generating share code...</p>
+            ) : (
+              <code className="text-sm break-all text-gray-700">{shareCode}</code>
+            )}
           </div>
 
           <button
             onClick={handleCopy}
+            disabled={loading || !!error || !shareCode}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             {copied ? (

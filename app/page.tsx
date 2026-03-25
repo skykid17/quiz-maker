@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {
   PlusCircle,
-  Upload,
+  Download,
   FileText,
   Trash2,
   Clock,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { quizApi } from '@/lib/api'
 import ImportModal from '@/components/ImportModal'
+import { ProtectedPage } from '@/components/ProtectedPage'
 import type { Quiz, QuizWithStats } from '@/lib/supabase/types'
 
 function QuizListContent() {
@@ -87,7 +88,7 @@ function QuizListContent() {
           onClick={() => setShowImport(true)}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          <Upload className="w-4 h-4" />
+          <Download className="w-4 h-4" />
           Import Quiz
         </button>
       </div>
@@ -184,13 +185,17 @@ function QuizListContent() {
 
 export default function QuizListPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    }>
-      <QuizListContent />
-    </Suspense>
+    <ProtectedPage>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        }
+      >
+        <QuizListContent />
+      </Suspense>
+    </ProtectedPage>
   )
 }
 

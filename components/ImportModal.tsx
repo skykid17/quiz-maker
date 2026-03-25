@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { X, Upload, AlertCircle } from 'lucide-react'
+import { X, Download, AlertCircle } from 'lucide-react'
 import { quizApi } from '@/lib/api'
 import type { Quiz } from '@/lib/supabase/types'
 
@@ -100,8 +100,8 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
           <button
             onClick={() => setInputMethod('paste')}
             className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${inputMethod === 'paste'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 hover:text-gray-700'
               }`}
           >
             Paste JSON
@@ -109,8 +109,8 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
           <button
             onClick={() => setInputMethod('file')}
             className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${inputMethod === 'file'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 hover:text-gray-700'
               }`}
           >
             Upload File
@@ -118,8 +118,8 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
           <button
             onClick={() => setInputMethod('share')}
             className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${inputMethod === 'share'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 hover:text-gray-700'
               }`}
           >
             Share Code
@@ -149,7 +149,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
               className="border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+              <Download className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-2">Drag and drop a JSON file here</p>
               <p className="text-sm text-gray-400">or click to browse</p>
               <input
