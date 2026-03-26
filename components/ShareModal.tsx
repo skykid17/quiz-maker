@@ -41,43 +41,43 @@ export default function ShareModal({ quiz, onClose }: ShareModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Share2 className="w-5 h-5" />
+    <div className="modal-overlay">
+      <div className="modal-content max-w-md p-0">
+        <div className="flex items-center justify-between p-5 border-b border-stone-100">
+          <h2 className="text-base font-semibold flex items-center gap-2">
+            <Share2 className="w-4 h-4 text-stone-500" />
             Share Quiz
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-xl transition-all duration-200">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-4">
-          <p className="text-sm text-gray-600 mb-4">
+        <div className="p-5">
+          <p className="text-sm text-stone-500 mb-4">
             Share this quiz by copying the code below. Others can import it using the
             &quot;Share Code&quot; option.
           </p>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
-          <div className="bg-gray-50 rounded-lg p-3 mb-4">
+          <div className="bg-stone-50 rounded-xl p-4 mb-4 border border-stone-200">
             {loading ? (
-              <p className="text-sm text-gray-500">Generating share code...</p>
+              <p className="text-sm text-stone-400">Generating share code...</p>
             ) : (
-              <code className="text-sm break-all text-gray-700">{shareCode}</code>
+              <code className="text-sm break-all text-stone-700 font-mono">{shareCode}</code>
             )}
           </div>
 
           <button
             onClick={handleCopy}
             disabled={loading || !!error || !shareCode}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="btn-primary w-full"
           >
             {copied ? (
               <>

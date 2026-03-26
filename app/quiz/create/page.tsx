@@ -59,7 +59,6 @@ export default function CreateQuizPage() {
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
   const hasUnsavedChanges = useRef(false)
 
-  // Load draft if editing
   useEffect(() => {
     if (draftId) {
       loadDraft()
@@ -115,7 +114,6 @@ export default function CreateQuizPage() {
     }
   }, [draftData, currentStep, router])
 
-  // Auto-save on changes
   useEffect(() => {
     hasUnsavedChanges.current = true
 
@@ -125,7 +123,7 @@ export default function CreateQuizPage() {
 
     autoSaveTimerRef.current = setTimeout(() => {
       saveDraft(true)
-    }, 30000) // Auto-save every 30 seconds
+    }, 30000)
 
     return () => {
       if (autoSaveTimerRef.current) {
@@ -186,77 +184,72 @@ export default function CreateQuizPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-7 w-7 border-2 border-stone-200 border-t-blue-600"></div>
       </div>
     )
   }
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900"
+          className="inline-flex items-center gap-1.5 text-stone-500 hover:text-stone-700 text-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </Link>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => saveDraft()}
-            disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saving ? 'Saving...' : 'Save Draft'}
-          </button>
-        </div>
+        <button
+          onClick={() => saveDraft()}
+          disabled={saving}
+          className="btn-secondary text-sm"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? 'Saving...' : 'Save Draft'}
+        </button>
       </div>
 
-      {/* Error */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
-          <button onClick={() => setError(null)} className="ml-auto text-red-600 hover:text-red-800">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <span className="text-red-700 text-sm">{error}</span>
+          <button onClick={() => setError(null)} className="ml-auto text-red-500 hover:text-red-700 text-lg leading-none">
             ×
           </button>
         </div>
       )}
 
-      {/* Steps Indicator */}
       <div className="flex items-center justify-center mb-8">
         {STEPS.map((step, index) => (
           <div key={step.id} className="flex items-center">
             <button
               onClick={() => setCurrentStep(step.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${currentStep === step.id
-                  ? 'bg-blue-600 text-white'
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                currentStep === step.id
+                  ? 'bg-blue-600 text-white shadow-warm-sm'
                   : currentStep > step.id
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-500'
-                }`}
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'bg-stone-100 text-stone-500'
+              }`}
             >
               {currentStep > step.id ? (
                 <Check className="w-4 h-4" />
               ) : (
-                <span className="w-5 h-5 rounded-full bg-current bg-opacity-20 flex items-center justify-center text-sm">
+                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">
                   {step.id}
                 </span>
               )}
               {step.title}
             </button>
             {index < STEPS.length - 1 && (
-              <div className={`w-12 h-0.5 mx-2 ${currentStep > step.id ? 'bg-green-500' : 'bg-gray-200'}`} />
+              <div className={`w-12 h-0.5 mx-2 rounded-full ${currentStep > step.id ? 'bg-emerald-400' : 'bg-stone-200'}`} />
             )}
           </div>
         ))}
       </div>
 
-      {/* Content */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="card p-6 sm:p-8">
         {currentStep === 1 && (
           <QuizMetadataForm data={draftData} onChange={handleMetadataChange} />
         )}
@@ -274,12 +267,11 @@ export default function CreateQuizPage() {
         )}
       </div>
 
-      {/* Navigation */}
       <div className="flex items-center justify-between mt-6">
         <button
           onClick={handlePrevStep}
           disabled={currentStep === 1}
-          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50"
+          className="btn-ghost"
         >
           <ArrowLeft className="w-4 h-4" />
           Previous
@@ -288,7 +280,7 @@ export default function CreateQuizPage() {
         {currentStep < 3 ? (
           <button
             onClick={handleNextStep}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="btn-primary"
           >
             Next
             <ArrowRight className="w-4 h-4" />
@@ -297,7 +289,7 @@ export default function CreateQuizPage() {
           <button
             onClick={handlePublish}
             disabled={!canPublish || publishing}
-            className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            className="btn-primary bg-emerald-600 hover:bg-emerald-700"
           >
             {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             {publishing ? 'Publishing...' : 'Publish Quiz'}

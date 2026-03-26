@@ -26,22 +26,18 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
       let quiz: Quiz
 
       if (inputMethod === 'share') {
-        // Import from share code
         const shared = await quizApi.getShared(shareCode.trim())
-        // Create a copy in user's collection
         quiz = await quizApi.create({
           title: shared.title,
           questions: shared.questions,
         })
       } else {
-        // Validate and parse JSON
         let data
         try {
           data = JSON.parse(jsonText)
         } catch {
           throw new Error('Invalid JSON format')
         }
-
         quiz = await quizApi.import(data)
       }
 
@@ -82,62 +78,45 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50">
-      <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-gray-900">Import Quiz</h2>
+    <div className="modal-overlay">
+      <div className="modal-content max-w-2xl max-h-[90vh]">
+        <div className="flex items-center justify-between p-5 border-b border-stone-100 flex-shrink-0">
+          <h2 className="text-base font-semibold text-stone-900">Import Quiz</h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-xl transition-all duration-200"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 flex-shrink-0 overflow-x-auto">
-          <button
-            onClick={() => setInputMethod('paste')}
-            className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${inputMethod === 'paste'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+        <div className="flex border-b border-stone-100 flex-shrink-0">
+          {(['paste', 'file', 'share'] as const).map((method) => (
+            <button
+              key={method}
+              onClick={() => setInputMethod(method)}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2 ${
+                inputMethod === method
+                  ? 'text-blue-600 border-blue-600'
+                  : 'text-stone-400 border-transparent hover:text-stone-600'
               }`}
-          >
-            Paste JSON
-          </button>
-          <button
-            onClick={() => setInputMethod('file')}
-            className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${inputMethod === 'file'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-              }`}
-          >
-            Upload File
-          </button>
-          <button
-            onClick={() => setInputMethod('share')}
-            className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-medium transition-colors ${inputMethod === 'share'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-              }`}
-          >
-            Share Code
-          </button>
+            >
+              {method === 'paste' ? 'Paste JSON' : method === 'file' ? 'Upload File' : 'Share Code'}
+            </button>
+          ))}
         </div>
 
-        {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-5">
           {inputMethod === 'paste' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-stone-700 mb-2">
                 Quiz JSON
               </label>
               <textarea
                 value={jsonText}
                 onChange={(e) => setJsonText(e.target.value)}
                 placeholder='{"title": "My Quiz", "questions": [...]}'
-                className="w-full h-40 sm:h-64 px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="input-field h-48 font-mono text-sm resize-none"
               />
             </div>
           )}
@@ -146,12 +125,14 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
             <div
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-stone-200 rounded-2xl p-12 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-200 cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Download className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">Drag and drop a JSON file here</p>
-              <p className="text-sm text-gray-400">or click to browse</p>
+              <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Download className="w-6 h-6 text-stone-400" />
+              </div>
+              <p className="text-stone-600 text-sm mb-1">Drag and drop a JSON file here</p>
+              <p className="text-xs text-stone-400">or click to browse</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -164,7 +145,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
 
           {inputMethod === 'share' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-stone-700 mb-2">
                 Share Code
               </label>
               <input
@@ -172,30 +153,29 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                 value={shareCode}
                 onChange={(e) => setShareCode(e.target.value)}
                 placeholder="QUIZ-XXXXXXXX"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-field"
               />
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-xs text-stone-400 mt-2">
                 Enter the share code to import a quiz from another user.
               </p>
             </div>
           )}
 
-          {/* Error */}
           {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-red-800 whitespace-pre-wrap">{error}</div>
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-red-700 whitespace-pre-wrap">{error}</div>
             </div>
           )}
 
-          {/* Example Format - Collapsible on mobile */}
           {inputMethod !== 'share' && (
-            <details className="mt-4">
-              <summary className="p-3 bg-gray-50 rounded-lg cursor-pointer text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <details className="mt-4 group">
+              <summary className="p-3 bg-stone-50 rounded-xl cursor-pointer text-sm font-medium text-stone-500 hover:bg-stone-100 transition-colors list-none flex items-center gap-2">
+                <span className="group-open:rotate-90 transition-transform">›</span>
                 Example Format
               </summary>
-              <div className="p-3 bg-gray-50 rounded-b-lg border-t border-gray-200">
-                <pre className="text-xs text-gray-600 overflow-x-auto whitespace-pre-wrap">
+              <div className="p-3 bg-stone-50 rounded-b-xl border-t border-stone-200">
+                <pre className="text-xs text-stone-500 overflow-x-auto whitespace-pre-wrap">
                   {`{
   "title": "My Quiz",
   "questions": [
@@ -216,12 +196,8 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
           )}
         </div>
 
-        {/* Footer - Sticky on mobile */}
-        <div className="sticky bottom-0 flex justify-end gap-3 p-4 border-t border-gray-200 bg-white flex-shrink-0">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          >
+        <div className="flex justify-end gap-3 p-5 border-t border-stone-100 bg-white flex-shrink-0">
+          <button onClick={onClose} className="btn-ghost">
             Cancel
           </button>
           <button
@@ -231,7 +207,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
               (inputMethod !== 'share' && !jsonText.trim()) ||
               (inputMethod === 'share' && !shareCode.trim())
             }
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="btn-primary"
           >
             {loading ? 'Importing...' : 'Import'}
           </button>

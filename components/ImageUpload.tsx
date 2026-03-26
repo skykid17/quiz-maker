@@ -32,7 +32,6 @@ export default function ImageUpload({
   const handleFileSelect = async (file: File) => {
     if (!file) return
 
-    // Validate
     const validationError = validateImageFile(file)
     if (validationError) {
       setError(validationError)
@@ -85,7 +84,7 @@ export default function ImageUpload({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
+        <label className="block text-sm font-medium text-stone-700">{label}</label>
       )}
 
       {value ? (
@@ -93,13 +92,13 @@ export default function ImageUpload({
           <img
             src={value}
             alt="Uploaded"
-            className="max-w-xs max-h-40 rounded-lg border border-gray-300"
+            className="max-w-xs max-h-40 rounded-xl border border-stone-200"
           />
           <button
             onClick={handleRemove}
-            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+            className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-200 shadow-warm-sm"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       ) : (
@@ -108,18 +107,19 @@ export default function ImageUpload({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onClick={() => inputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${dragOver
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-gray-400'
-            } ${error ? 'border-red-500 bg-red-50' : ''}`}
+          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
+            dragOver
+              ? 'border-blue-400 bg-blue-50'
+              : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
+          } ${error ? 'border-red-300 bg-red-50' : ''}`}
         >
           {loading ? (
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-7 w-7 border-2 border-stone-200 border-t-blue-600 mx-auto"></div>
           ) : (
             <>
-              <Image className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">Click or drag image here</p>
-              <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
+              <Image className="w-7 h-7 text-stone-300 mx-auto mb-2" />
+              <p className="text-sm text-stone-500">Click or drag image here</p>
+              <p className="text-xs text-stone-400 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
             </>
           )}
         </div>
@@ -134,8 +134,8 @@ export default function ImageUpload({
       />
 
       {error && (
-        <div className="flex items-center gap-2 text-red-600 text-sm">
-          <AlertCircle className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-red-500 text-xs">
+          <AlertCircle className="w-3.5 h-3.5" />
           {error}
         </div>
       )}

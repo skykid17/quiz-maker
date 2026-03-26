@@ -49,7 +49,6 @@ export default function QuestionListManager({
 
   const handleQuestionChange = (updatedQuestion: Question) => {
     setCurrentQuestion(updatedQuestion)
-    // Also update parent state for existing questions
     if (editingIndex !== null) {
       const newQuestions = [...questions]
       newQuestions[editingIndex] = updatedQuestion
@@ -61,12 +60,10 @@ export default function QuestionListManager({
     if (!currentQuestion) return
 
     if (editingIndex !== null) {
-      // Update existing question - already done in handleQuestionChange
       setShowQuestionForm(false)
       setEditingIndex(null)
       setCurrentQuestion(null)
     } else {
-      // Add new question
       onChange([...questions, currentQuestion])
       setShowQuestionForm(false)
       setCurrentQuestion(null)
@@ -102,7 +99,6 @@ export default function QuestionListManager({
     }
   }
 
-  // Drag and Drop handlers
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index)
     e.dataTransfer.effectAllowed = 'move'
@@ -137,28 +133,29 @@ export default function QuestionListManager({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Questions</h2>
-          <p className="text-gray-600">Add questions to your quiz. Drag to reorder.</p>
+          <h2 className="text-xl font-semibold text-stone-900 mb-1">Questions</h2>
+          <p className="text-stone-500 text-sm">Add questions to your quiz. Drag to reorder.</p>
         </div>
         <button
           onClick={handleAddQuestion}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="btn-primary text-sm"
         >
           <Plus className="w-4 h-4" />
           Add Question
         </button>
       </div>
 
-      {/* Question List */}
       {questions.length === 0 && !showQuestionForm && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-          <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 mb-2">No questions added yet</p>
-          <p className="text-sm text-gray-500">Click &quot;Add Question&quot; to get started</p>
+        <div className="text-center py-12 bg-stone-50 rounded-2xl border-2 border-dashed border-stone-200">
+          <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-6 h-6 text-stone-400" />
+          </div>
+          <p className="text-stone-600 text-sm mb-1">No questions added yet</p>
+          <p className="text-xs text-stone-400">Click &quot;Add Question&quot; to get started</p>
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {questions.map((question, index) => {
           const questionType = inferQuestionType(question.answerOptions)
           const correctCount =
@@ -174,69 +171,56 @@ export default function QuestionListManager({
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
               onDragEnd={handleDragEnd}
-              className={`bg-white border rounded-lg p-4 shadow-sm transition-all ${draggedIndex === index ? 'opacity-50' : ''
-                } ${dragOverIndexRef.current === index
-                  ? 'border-blue-500 border-2'
-                  : 'border-gray-200'
-                }`}
+              className={`bg-white border rounded-xl p-4 transition-all duration-200 ${
+                draggedIndex === index ? 'opacity-50' : ''
+              } ${
+                dragOverIndexRef.current === index
+                  ? 'border-blue-400 shadow-warm'
+                  : 'border-stone-200'
+              }`}
             >
               <div className="flex items-start gap-3">
-                {/* Drag Handle */}
-                <div className="cursor-move text-gray-400 hover:text-gray-600 pt-1 hidden sm:block">
+                <div className="cursor-move text-stone-300 hover:text-stone-500 pt-0.5 hidden sm:block">
                   <GripVertical className="w-5 h-5" />
                 </div>
 
-                {/* Question Number */}
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-semibold text-sm">
                   {index + 1}
                 </div>
 
-                {/* Question Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 font-medium line-clamp-2 mb-2">
+                  <p className="text-stone-900 font-medium text-sm line-clamp-2 mb-2">
                     {question.question || 'Untitled Question'}
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                    <span>{question.answerOptions?.length || 0} options</span>
-                    <span>•</span>
-                    <span>{correctCount} correct</span>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                    <span className="badge-stone">{question.answerOptions?.length || 0} options</span>
+                    <span className="badge-stone">{correctCount} correct</span>
                     {questionType === 'multiple' && (
-                      <>
-                        <span>•</span>
-                        <span className="text-purple-600">Multi-select</span>
-                      </>
+                      <span className="badge-blue">Multi-select</span>
                     )}
                     {hasImages && (
-                      <>
-                        <span>•</span>
-                        <Image className="w-4 h-4 text-blue-600" />
-                      </>
+                      <Image className="w-3.5 h-3.5 text-blue-500" />
                     )}
                     {question.hint && (
-                      <>
-                        <span>•</span>
-                        <span className="text-amber-600">Has hint</span>
-                      </>
+                      <span className="badge-amber">Has hint</span>
                     )}
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-1">
-                  {/* Mobile Reorder Buttons */}
+                <div className="flex items-center gap-0.5">
                   <div className="flex sm:hidden">
                     <button
                       onClick={() => handleMoveQuestion(index, -1)}
                       disabled={index === 0}
-                      className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                      className="p-1.5 text-stone-400 hover:text-stone-600 disabled:opacity-30"
                     >
                       <ChevronUp className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleMoveQuestion(index, 1)}
                       disabled={index === questions.length - 1}
-                      className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                      className="p-1.5 text-stone-400 hover:text-stone-600 disabled:opacity-30"
                     >
                       <ChevronDown className="w-4 h-4" />
                     </button>
@@ -244,7 +228,7 @@ export default function QuestionListManager({
 
                   <button
                     onClick={() => handleEditQuestion(index)}
-                    className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                    className="p-1.5 text-stone-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-200"
                     aria-label="Edit question"
                   >
                     <Edit2 className="w-4 h-4" />
@@ -252,7 +236,7 @@ export default function QuestionListManager({
 
                   <button
                     onClick={() => handleDeleteQuestion(index)}
-                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                    className="p-1.5 text-stone-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-all duration-200"
                     aria-label="Delete question"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -264,47 +248,37 @@ export default function QuestionListManager({
         })}
       </div>
 
-      {/* Question Form Modal */}
       {showQuestionForm && currentQuestion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <QuestionForm
-                question={currentQuestion}
-                index={editingIndex}
-                onChange={handleQuestionChange}
-                onSave={handleSaveQuestion}
-                onCancel={handleCancelQuestion}
-                isNew={editingIndex === null}
-                quizId={quizId}
-              />
-            </div>
+        <div className="modal-overlay">
+          <div className="modal-content max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <QuestionForm
+              question={currentQuestion}
+              index={editingIndex}
+              onChange={handleQuestionChange}
+              onSave={handleSaveQuestion}
+              onCancel={handleCancelQuestion}
+              isNew={editingIndex === null}
+              quizId={quizId}
+            />
           </div>
         </div>
       )}
 
-      {/* Delete Confirmation */}
       {deleteConfirm !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <div className="modal-overlay">
+          <div className="modal-content max-w-md p-6">
             <div className="flex items-center gap-3 mb-4">
-              <AlertCircle className="w-6 h-6 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Delete Question?</h3>
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <h3 className="text-lg font-semibold text-stone-900">Delete Question?</h3>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-stone-500 text-sm mb-6">
               Are you sure you want to delete this question? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
+              <button onClick={() => setDeleteConfirm(null)} className="btn-ghost">
                 Cancel
               </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
+              <button onClick={confirmDelete} className="btn-danger">
                 Delete
               </button>
             </div>

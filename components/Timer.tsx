@@ -39,13 +39,13 @@ export default function Timer({ initialSeconds, onExpire, className = '' }: Time
 
   const getColorClass = () => {
     if (seconds <= 30) return 'text-red-600 bg-red-50 border-red-200'
-    if (seconds <= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-    return 'text-gray-700 bg-gray-50 border-gray-200'
+    if (seconds <= 60) return 'text-amber-600 bg-amber-50 border-amber-200'
+    return 'text-stone-600 bg-stone-50 border-stone-200'
   }
 
   return (
     <div
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border font-mono text-sm font-medium ${getColorClass()} ${className}`}
+      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border font-mono text-sm font-medium ${getColorClass()} ${className}`}
     >
       <Clock className="w-4 h-4" />
       <span>{formatTime(seconds)}</span>

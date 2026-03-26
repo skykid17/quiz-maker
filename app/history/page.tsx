@@ -43,20 +43,22 @@ export default function HistoryPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-7 w-7 border-2 border-stone-200 border-t-blue-600"></div>
       </div>
     )
   }
 
   if (attempts.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">No attempts yet</h2>
-        <p className="text-gray-500 mb-6">Complete a quiz to see your history here.</p>
+      <div className="text-center py-20">
+        <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Clock className="w-8 h-8 text-stone-400" />
+        </div>
+        <h2 className="text-lg font-semibold text-stone-700 mb-2">No attempts yet</h2>
+        <p className="text-stone-500 text-sm mb-6">Complete a quiz to see your history here.</p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="btn-primary"
         >
           Browse Quizzes
           <ChevronRight className="w-4 h-4" />
@@ -68,11 +70,13 @@ export default function HistoryPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Attempt History</h1>
-        <p className="text-gray-500">{attempts.length} attempt(s)</p>
+        <div>
+          <h1 className="text-2xl font-semibold text-stone-900 tracking-tight">Attempt History</h1>
+          <p className="text-stone-500 text-sm mt-1">{attempts.length} attempt{attempts.length !== 1 ? 's' : ''}</p>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {attempts.map((attempt) => {
           const quizTitle = attempt.quizId?.title || 'Unknown Quiz'
           const quizId = attempt.quizId?.id || attempt.quiz_id
@@ -80,14 +84,14 @@ export default function HistoryPage() {
           return (
             <div
               key={attempt.id}
-              className="bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition-shadow"
+              className="card-hover p-4"
             >
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{quizTitle}</h3>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-stone-900 truncate">{quizTitle}</h3>
+                  <div className="flex items-center gap-3 mt-1.5 text-xs text-stone-500">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-3.5 h-3.5" />
                       {new Date(attempt.completed_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -97,19 +101,18 @@ export default function HistoryPage() {
                       })}
                     </span>
                     {attempt.questions_skipped > 0 && (
-                      <span className="flex items-center gap-1 text-amber-600">
-                        <AlertCircle className="w-4 h-4" />
+                      <span className="badge-amber">
                         {attempt.questions_skipped} skipped
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4 ml-4">
                   <div className="text-right">
                     <span
                       className={`text-lg font-semibold ${(attempt.percentage ?? 0) >= 70
-                          ? 'text-green-600'
+                          ? 'text-emerald-600'
                           : (attempt.percentage ?? 0) >= 50
                             ? 'text-amber-600'
                             : 'text-red-600'
@@ -117,25 +120,25 @@ export default function HistoryPage() {
                     >
                       {attempt.percentage ?? 0}%
                     </span>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-stone-400">
                       {attempt.score?.toFixed?.(1) ?? attempt.score} / {attempt.total_points} pts
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <Link
                       href={`/quiz/${quizId}/review/${attempt.id}`}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
                       title="Review"
                     >
-                      <Eye className="w-5 h-5" />
+                      <Eye className="w-4 h-4" />
                     </Link>
                     <button
                       onClick={() => setDeleteConfirm(attempt.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
                       title="Delete"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -145,24 +148,23 @@ export default function HistoryPage() {
         })}
       </div>
 
-      {/* Delete confirmation modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold mb-2">Delete Attempt?</h3>
-            <p className="text-gray-600 mb-4">
+        <div className="modal-overlay">
+          <div className="modal-content max-w-md p-6">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Attempt?</h3>
+            <p className="text-stone-500 text-sm mb-6">
               This action cannot be undone. The attempt record will be permanently removed.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="btn-ghost"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="btn-danger"
               >
                 Delete
               </button>

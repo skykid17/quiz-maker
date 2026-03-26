@@ -17,7 +17,6 @@ function LoginPageContent() {
     const [showVerifyEmail, setShowVerifyEmail] = useState(false)
     const [callbackError, setCallbackError] = useState<string | null>(null)
 
-    // Show success message if user just signed up
     useEffect(() => {
         if (searchParams.get('signed_up') === 'true') {
             setShowSuccess(true)
@@ -48,44 +47,41 @@ function LoginPageContent() {
 
     return (
         <div className="space-y-6">
-            {/* Success Message */}
             {showSuccess && (
-                <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <p className="text-sm text-green-800">
+                <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <p className="text-sm text-emerald-800">
                         Account created successfully.
                     </p>
                 </div>
             )}
 
             {showVerifyEmail && (
-                <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
                     <p className="text-sm text-blue-800">
                         Please confirm your email before logging in. Check your inbox and spam folder.
                     </p>
                 </div>
             )}
 
-            {/* Error Message */}
             {callbackError && (
-                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-red-800">{callbackError}</p>
                 </div>
             )}
 
             {error && (
-                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-red-800">{error.message}</p>
                 </div>
             )}
 
-            {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1.5">
                         Email Address
                     </label>
                     <input
@@ -97,13 +93,13 @@ function LoginPageContent() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={loading}
-                        className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                        className="input-field"
                         placeholder="you@example.com"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="password" className="block text-sm font-medium text-stone-700 mb-1.5">
                         Password
                     </label>
                     <input
@@ -115,7 +111,7 @@ function LoginPageContent() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={loading}
-                        className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                        className="input-field"
                         placeholder="••••••••"
                     />
                 </div>
@@ -123,17 +119,16 @@ function LoginPageContent() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:cursor-not-allowed"
+                    className="btn-primary w-full py-3"
                 >
                     {loading ? 'Signing in...' : 'Sign In'}
                 </button>
             </form>
 
-            {/* Sign Up Link */}
             <div className="text-center">
-                <p className="text-sm text-gray-600">
-                    Don't have an account?{' '}
-                    <Link href="/auth/signup" className="text-blue-600 hover:text-blue-800 font-medium">
+                <p className="text-sm text-stone-500">
+                    Don&apos;t have an account?{' '}
+                    <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-medium">
                         Create one
                     </Link>
                 </p>

@@ -99,25 +99,25 @@ export default function QuizDetailPage() {
   }
 
   function getScoreColor(percentage: number) {
-    if (percentage >= 80) return 'text-green-600'
-    if (percentage >= 60) return 'text-yellow-600'
+    if (percentage >= 80) return 'text-emerald-600'
+    if (percentage >= 60) return 'text-amber-600'
     return 'text-red-600'
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-7 w-7 border-2 border-stone-200 border-t-blue-600"></div>
       </div>
     )
   }
 
   if (!quiz) {
     return (
-      <div className="text-center py-12">
-        <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500">Quiz not found</p>
-        <Link href="/" className="text-blue-600 hover:underline mt-2 inline-block">
+      <div className="text-center py-16">
+        <AlertCircle className="w-12 h-12 text-stone-300 mx-auto mb-4" />
+        <p className="text-stone-500">Quiz not found</p>
+        <Link href="/" className="text-blue-600 hover:underline mt-2 inline-block text-sm">
           Go back to quizzes
         </Link>
       </div>
@@ -125,65 +125,52 @@ export default function QuizDetailPage() {
   }
 
   const bestScore = attempts.length > 0 ? Math.max(...attempts.map((a) => a.percentage)) : null
-  const avgScore =
-    attempts.length > 0
-      ? Math.round(attempts.reduce((sum, a) => sum + a.percentage, 0) / attempts.length)
-      : null
 
   return (
     <div>
-      {/* Back button */}
       <Link
         href="/"
-        className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 mb-4"
+        className="inline-flex items-center gap-1.5 text-stone-500 hover:text-stone-700 text-sm mb-4"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to quizzes
       </Link>
 
-      {/* Error */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <span className="text-red-700 text-sm">{error}</span>
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="card p-6 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {editing ? (
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="text-2xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none flex-1"
+                  className="input-field text-xl font-semibold"
                   autoFocus
                 />
-                <button
-                  onClick={handleRename}
-                  className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                >
+                <button onClick={handleRename} className="btn-primary text-sm py-2">
                   Save
                 </button>
-                <button
-                  onClick={() => setEditing(false)}
-                  className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded text-sm"
-                >
+                <button onClick={() => setEditing(false)} className="btn-ghost text-sm py-2">
                   Cancel
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-gray-900">{quiz.title}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold text-stone-900 truncate">{quiz.title}</h1>
                 <button
                   onClick={() => {
                     setNewTitle(quiz.title)
                     setEditing(true)
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="p-1.5 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-100 transition-all duration-200 flex-shrink-0"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -191,96 +178,98 @@ export default function QuizDetailPage() {
             )}
 
             {quiz.description && (
-              <p className="text-gray-600 mt-2">{quiz.description}</p>
+              <p className="text-stone-500 text-sm mt-1.5">{quiz.description}</p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-gray-500">
-              <span>{quiz.questions.length} questions</span>
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <span className="badge-stone">
+                {quiz.questions.length} questions
+              </span>
               {quiz.time_limit && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
+                <span className="badge-stone">
+                  <Clock className="w-3 h-3 mr-1" />
                   {quiz.time_limit} min
                 </span>
               )}
               {bestScore !== null && (
-                <span className="flex items-center gap-1">
-                  <Trophy className="w-4 h-4 text-yellow-500" />
+                <span className="badge-amber">
+                  <Trophy className="w-3 h-3 mr-1" />
                   Best: {bestScore}%
                 </span>
               )}
-              {attempts.length > 0 && <span>{attempts.length} attempts</span>}
+              {attempts.length > 0 && (
+                <span className="badge-stone">
+                  {attempts.length} attempt{attempts.length !== 1 ? 's' : ''}
+                </span>
+              )}
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={`/quiz/${id}/take`}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Play className="w-4 h-4" />
-              Start Quiz
-            </Link>
-          </div>
+          <Link
+            href={`/quiz/${id}/take`}
+            className="btn-primary flex-shrink-0"
+          >
+            <Play className="w-4 h-4" />
+            Start Quiz
+          </Link>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         <button
           onClick={() => setShowShare(true)}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="btn-secondary text-sm"
         >
           <Share2 className="w-4 h-4" />
           Share
         </button>
         <button
           onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="btn-secondary text-sm"
         >
           <Upload className="w-4 h-4" />
           Export
         </button>
         <button
           onClick={handleDuplicate}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="btn-secondary text-sm"
         >
           <Copy className="w-4 h-4" />
           Duplicate
         </button>
         <button
           onClick={() => setDeleteConfirm(true)}
-          className="flex items-center gap-2 px-4 py-2 text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50"
+          className="btn-danger-outline text-sm"
         >
           <Trash2 className="w-4 h-4" />
           Delete
         </button>
       </div>
 
-      {/* Attempt History */}
       {attempts.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Attempt History</h2>
-          <div className="space-y-3">
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-stone-900 mb-4">Attempt History</h2>
+          <div className="space-y-2">
             {attempts.slice(0, 5).map((attempt) => (
               <div
                 key={attempt.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-stone-50 rounded-xl"
               >
                 <div className="flex items-center gap-4">
-                  <span className={`font-semibold ${getScoreColor(attempt.percentage)}`}>
+                  <span className={`font-semibold text-sm ${getScoreColor(attempt.percentage)}`}>
                     {attempt.percentage}%
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs text-stone-500">
                     {formatDuration(attempt.duration)}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs text-stone-400">
                     {new Date(attempt.completed_at).toLocaleDateString()}
                   </span>
                   <Link
                     href={`/quiz/${id}/review/${attempt.id}`}
-                    className="text-blue-600 hover:underline text-sm"
+                    className="text-blue-600 hover:text-blue-700 text-xs font-medium"
                   >
                     Review
                   </Link>
@@ -291,27 +280,25 @@ export default function QuizDetailPage() {
         </div>
       )}
 
-      {/* Share Modal */}
       {showShare && <ShareModal quiz={quiz} onClose={() => setShowShare(false)} />}
 
-      {/* Delete Confirmation */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Quiz?</h3>
-            <p className="text-gray-600 mb-6">
+        <div className="modal-overlay">
+          <div className="modal-content max-w-md p-6">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Quiz?</h3>
+            <p className="text-stone-500 text-sm mb-6">
               This will permanently delete the quiz and all attempt history.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="btn-ghost"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="btn-danger"
               >
                 Delete
               </button>
