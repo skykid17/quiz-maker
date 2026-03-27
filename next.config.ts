@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@supabase/supabase-js', '@supabase/ssr'],
+  },
   images: {
     remotePatterns: [
       {
@@ -10,6 +13,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+  poweredByHeader: false,
 }
 
 export default nextConfig

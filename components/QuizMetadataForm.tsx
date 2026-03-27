@@ -90,6 +90,7 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
         <input
           type="text"
           id="title"
+          name="title"
           value={data.title || ''}
           onChange={(e) => onChange({ title: e.target.value })}
           onBlur={() => handleBlur('title')}
@@ -116,6 +117,7 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
         </label>
         <textarea
           id="description"
+          name="description"
           value={data.description || ''}
           onChange={(e) => onChange({ description: e.target.value })}
           onBlur={() => handleBlur('description')}
@@ -145,6 +147,7 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
         <input
           type="number"
           id="timeLimit"
+          name="timeLimit"
           value={data.timeLimit || ''}
           onChange={(e) =>
             onChange({ timeLimit: e.target.value ? parseInt(e.target.value) : null })
@@ -172,16 +175,17 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
           Tags / Categories
         </label>
         <div className="flex gap-2">
-          <input
-            type="text"
-            id="tags"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            placeholder="Add a tag..."
-            className="input-field"
-            maxLength={30}
-          />
+            <input
+              type="text"
+              id="tags"
+              name="tags"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              placeholder="Add a tag..."
+              className="input-field"
+              maxLength={30}
+            />
           <button
             onClick={handleAddTag}
             disabled={!tagInput.trim() || (data.tags?.length ?? 0) >= 10}

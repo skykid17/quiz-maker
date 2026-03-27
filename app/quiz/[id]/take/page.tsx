@@ -57,10 +57,14 @@ export default function TakeQuizPage() {
   const loadQuizAndProgress = async () => {
     try {
       setLoading(true)
-      const { quiz: quizData } = await quizApi.get(id!)
-      setQuiz(quizData)
+      // Run both API calls in parallel
+      const [quizResponse, progress] = await Promise.all([
+        quizApi.get(id!),
+        progressApi.get(id!)
+      ])
+      
+      setQuiz(quizResponse.quiz)
 
-      const progress = await progressApi.get(id!)
       if (progress) {
         setMode(progress.mode as FeedbackMode)
         setCurrentIndex(progress.current_question_index || 0)
@@ -146,7 +150,7 @@ export default function TakeQuizPage() {
   const handleSubmitAnswer = () => {
     setShowFeedback(true)
     hasUnsavedChanges.current = true
-    saveProgress()
+    // Removed manual saveProgress() call as the useEffect debounce will handle it
   }
 
   const handleNext = () => {

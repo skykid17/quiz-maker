@@ -22,7 +22,8 @@ export async function GET() {
     // Query only the current user's quizzes (RLS enforces this on DB level too)
     const { data: quizzes, error } = await supabase
       .from('quizzes')
-      .select('id, title, questions, created_at, updated_at, share_code, user_id')
+      // Using a join to fetch attempts in the same query to fix N+1
+      .select('id, title, questions, created_at, updated_at, share_code, user_id, attempts(percentage, completed_at)')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false })
 
@@ -30,41 +31,38 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Get attempt stats for each quiz
-    const quizzesWithStats = await Promise.all(
-      (quizzes || []).map(async (quiz) => {
-        const quizData = quiz as Record<string, unknown>
-        const { data: attempts } = await supabase
-          .from('attempts')
-          .select('percentage, completed_at')
-          .eq('quiz_id', quizData.id as string)
+    // Compute stats in memory
+    const quizzesWithStats = (quizzes || []).map((quiz) => {
+      const quizData = quiz as Record<string, unknown>
+      const attemptsData = (quizData.attempts || []) as Array<{
+        percentage: number
+        completed_at: string
+      }>
+      
+      // Remove attempts from the returned quiz object to keep response clean
+      delete quizData.attempts
 
-        const attemptsData = (attempts || []) as Array<{
-          percentage: number
-          completed_at: string
-        }>
-        const bestScore =
-          attemptsData.length > 0
-            ? Math.max(...attemptsData.map((a) => a.percentage))
-            : null
-        const lastAttempt =
-          attemptsData.length > 0
-            ? attemptsData.sort(
-              (a, b) =>
-                new Date(b.completed_at).getTime() -
-                new Date(a.completed_at).getTime()
-            )[0].completed_at
-            : null
+      const bestScore =
+        attemptsData.length > 0
+          ? Math.max(...attemptsData.map((a) => a.percentage))
+          : null
+      const lastAttempt =
+        attemptsData.length > 0
+          ? attemptsData.sort(
+            (a, b) =>
+              new Date(b.completed_at).getTime() -
+              new Date(a.completed_at).getTime()
+          )[0].completed_at
+          : null
 
-        return {
-          ...quizData,
-          questionCount: (quizData.questions as unknown[]).length,
-          attemptCount: attemptsData.length,
-          bestScore,
-          lastAttempt,
-        }
-      })
-    )
+      return {
+        ...quizData,
+        questionCount: Array.isArray(quizData.questions) ? quizData.questions.length : 0,
+        attemptCount: attemptsData.length,
+        bestScore,
+        lastAttempt,
+      }
+    })
 
     return NextResponse.json(quizzesWithStats)
   } catch (err) {

@@ -85,12 +85,13 @@ export default function HistoryPage() {
             <div
               key={attempt.id}
               className="card-hover p-4"
+              data-testid="attempt-row"
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-stone-900 truncate">{quizTitle}</h3>
                   <div className="flex items-center gap-3 mt-1.5 text-xs text-stone-500">
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1" data-testid="attempt-date">
                       <Clock className="w-3.5 h-3.5" />
                       {new Date(attempt.completed_at).toLocaleDateString('en-US', {
                         month: 'short',
@@ -111,6 +112,7 @@ export default function HistoryPage() {
                 <div className="flex items-center gap-4 ml-4">
                   <div className="text-right">
                     <span
+                      data-testid="score"
                       className={`text-lg font-semibold ${(attempt.percentage ?? 0) >= 70
                           ? 'text-emerald-600'
                           : (attempt.percentage ?? 0) >= 50
