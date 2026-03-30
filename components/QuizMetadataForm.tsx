@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertCircle, X, Clock, Tag } from 'lucide-react'
+import { AlertCircle, X, Clock, Tag, RotateCcw, MessageSquare } from 'lucide-react'
 import {
   validateQuizTitle,
   validateDescription,
   validateTimeLimit,
   validateTags,
 } from '@/lib/validation'
+import type { FeedbackMode } from '@/lib/supabase/types'
 
 interface QuizMetadata {
   title?: string
@@ -15,6 +16,8 @@ interface QuizMetadata {
   timeLimit?: number | null
   tags?: string[]
   autoGenerateShareCode?: boolean
+  feedbackMode?: FeedbackMode
+  backtracking?: boolean
 }
 
 interface QuizMetadataFormProps {
@@ -233,6 +236,46 @@ export default function QuizMetadataForm({ data, onChange }: QuizMetadataFormPro
         <label htmlFor="autoGenerateShareCode" className="text-sm text-stone-600">
           Automatically generate a share code for this quiz
         </label>
+      </div>
+
+      <div>
+        <label htmlFor="feedbackMode" className="block text-sm font-medium text-stone-700 mb-1.5">
+          <MessageSquare className="w-4 h-4 inline mr-1.5 text-stone-400" />
+          Feedback Mode
+        </label>
+        <select
+          id="feedbackMode"
+          value={data.feedbackMode ?? 'choose'}
+          onChange={(e) => {
+            const value = e.target.value
+            onChange({ feedbackMode: value === 'choose' ? null : value as 'immediate' | 'end' })
+          }}
+          className="input-field"
+        >
+          <option value="choose">Let user choose each time</option>
+          <option value="immediate">Immediate Feedback</option>
+          <option value="end">End Feedback</option>
+        </select>
+        <p className="text-xs text-stone-400 mt-1">
+          Choose whether to show feedback after each question or only at the end
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          id="backtracking"
+          checked={data.backtracking !== false}
+          onChange={(e) => onChange({ backtracking: e.target.checked })}
+          className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
+        />
+        <label htmlFor="backtracking" className="text-sm text-stone-600">
+          <RotateCcw className="w-4 h-4 inline mr-1.5 text-stone-400" />
+          Allow backtracking
+        </label>
+        <span className="text-xs text-stone-400">
+          (Allow users to go back to previous questions)
+        </span>
       </div>
     </div>
   )

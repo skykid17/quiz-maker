@@ -16,7 +16,7 @@ import { generateQuizSummary } from '@/lib/quizHelpers'
 import QuizMetadataForm from '@/components/QuizMetadataForm'
 import QuestionListManager from '@/components/QuestionListManager'
 import QuizReview from '@/components/QuizReview'
-import type { Question } from '@/lib/supabase/types'
+import type { Question, FeedbackMode } from '@/lib/supabase/types'
 
 interface DraftData {
   _id?: string
@@ -25,6 +25,8 @@ interface DraftData {
   timeLimit: number | null
   tags: string[]
   autoGenerateShareCode: boolean
+  feedbackMode: FeedbackMode
+  backtracking: boolean
   questions: Question[]
   currentStep: number
 }
@@ -52,6 +54,8 @@ export default function CreateQuizPage() {
     timeLimit: null,
     tags: [],
     autoGenerateShareCode: true,
+    feedbackMode: null,
+    backtracking: true,
     questions: [],
     currentStep: 1,
   })
@@ -76,6 +80,8 @@ export default function CreateQuizPage() {
         timeLimit: draft.time_limit || null,
         tags: draft.tags || [],
         autoGenerateShareCode: draft.auto_generate_share_code ?? true,
+        feedbackMode: (draft as { feedback_mode?: FeedbackMode }).feedback_mode ?? null,
+        backtracking: (draft as { backtracking?: boolean }).backtracking ?? true,
         questions: (draft.questions as Question[]) || [],
         currentStep: draft.current_step || 1,
       })
@@ -97,6 +103,8 @@ export default function CreateQuizPage() {
         timeLimit: draftData.timeLimit,
         tags: draftData.tags,
         autoGenerateShareCode: draftData.autoGenerateShareCode,
+        feedbackMode: draftData.feedbackMode,
+        backtracking: draftData.backtracking,
         questions: draftData.questions,
         currentStep: currentStep,
       })

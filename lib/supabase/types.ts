@@ -17,6 +17,8 @@ export interface Question {
   answerOptions: AnswerOption[]
 }
 
+export type FeedbackMode = 'immediate' | 'end' | null
+
 export interface Quiz {
   id: string
   title: string
@@ -25,6 +27,8 @@ export interface Quiz {
   tags: string[]
   share_code: string | null
   questions: Question[]
+  feedback_mode: FeedbackMode
+  backtracking: boolean
   created_at: string
   updated_at: string
 }
@@ -36,6 +40,8 @@ export interface QuizDraft {
   time_limit: number | null
   tags: string[]
   auto_generate_share_code: boolean
+  feedback_mode: FeedbackMode
+  backtracking: boolean
   questions: Question[]
   current_step: number
   created_at: string
@@ -71,6 +77,7 @@ export interface Progress {
   answers: Record<string, string[]>
   skipped_questions: string[]
   mode: 'immediate' | 'end' | null
+  backtracking_enabled: boolean
   started_at: string
   updated_at: string
 }

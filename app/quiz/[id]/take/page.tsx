@@ -26,6 +26,7 @@ interface QuizProgress {
   answers: Record<string, string[]>
   skippedQuestions: string[]
   mode: FeedbackMode
+  backtrackingEnabled: boolean
   startedAt: string
 }
 
@@ -38,6 +39,7 @@ export default function TakeQuizPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [mode, setMode] = useState<FeedbackMode | null>(null)
+  const [backtrackingEnabled, setBacktrackingEnabled] = useState<boolean | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string[]>>({})
   const [skippedQuestions, setSkippedQuestions] = useState<string[]>([])
@@ -57,7 +59,6 @@ export default function TakeQuizPage() {
   const loadQuizAndProgress = async () => {
     try {
       setLoading(true)
-      // Run both API calls in parallel
       const [quizResponse, progress] = await Promise.all([
         quizApi.get(id!),
         progressApi.get(id!)
@@ -71,6 +72,9 @@ export default function TakeQuizPage() {
         setAnswers(progress.answers || {})
         setSkippedQuestions(progress.skipped_questions || [])
         setStartedAt(progress.started_at || new Date().toISOString())
+        setBacktrackingEnabled(progress.backtracking_enabled ?? true)
+      } else {
+        setBacktrackingEnabled(quizResponse.quiz.backtracking ?? true)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load quiz')
@@ -80,7 +84,7 @@ export default function TakeQuizPage() {
   }
 
   const saveProgress = useCallback(async () => {
-    if (!id || !mode) return
+    if (!id || !mode || backtrackingEnabled === null) return
 
     try {
       await progressApi.save(id, {
@@ -88,12 +92,13 @@ export default function TakeQuizPage() {
         answers,
         skipped_questions: skippedQuestions,
         mode,
+        backtracking_enabled: backtrackingEnabled,
       })
       hasUnsavedChanges.current = false
     } catch (err) {
       console.error('Failed to save progress:', err)
     }
-  }, [id, mode, currentIndex, answers, skippedQuestions])
+  }, [id, mode, backtrackingEnabled, currentIndex, answers, skippedQuestions])
 
   useEffect(() => {
     if (!mode || !hasUnsavedChanges.current) return
@@ -119,6 +124,9 @@ export default function TakeQuizPage() {
     setCurrentIndex(0)
     setAnswers({})
     setSkippedQuestions([])
+    if (backtrackingEnabled === null && quiz) {
+      setBacktrackingEnabled(quiz.backtracking ?? true)
+    }
   }
 
   const handleAnswerSelect = (optionId: string) => {
@@ -164,7 +172,7 @@ export default function TakeQuizPage() {
   }
 
   const handlePrevious = () => {
-    if (currentIndex > 0) {
+    if (backtrackingEnabled && currentIndex > 0) {
       setCurrentIndex(currentIndex - 1)
       setShowFeedback(false)
       setShowHint(false)
@@ -245,6 +253,8 @@ export default function TakeQuizPage() {
   }
 
   if (!mode) {
+    const presetFeedback = quiz.feedback_mode
+    
     return (
       <div className="max-w-xl mx-auto">
         <Link
@@ -257,34 +267,63 @@ export default function TakeQuizPage() {
 
         <div className="card p-8">
           <h1 className="text-xl font-semibold text-stone-900 mb-2">{quiz.title}</h1>
-          <p className="text-stone-500 text-sm mb-6">
+          <p className="text-stone-500 text-sm mb-2">
             {quiz.questions.length} questions
             {quiz.time_limit && ` · ${quiz.time_limit} minute time limit`}
           </p>
+          {!quiz.backtracking && (
+            <p className="text-amber-600 text-sm mb-6">
+              Note: Backtracking is disabled for this quiz
+            </p>
+          )}
 
-          <h2 className="text-base font-semibold text-stone-900 mb-4">Select Feedback Mode</h2>
+          {presetFeedback ? (
+            <div className="space-y-3">
+              <h2 className="text-base font-semibold text-stone-900 mb-4">
+                This quiz uses {presetFeedback === 'immediate' ? 'Immediate Feedback' : 'End Feedback'}
+              </h2>
+              <button
+                onClick={() => handleStartQuiz(presetFeedback)}
+                className="w-full p-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 text-left group"
+              >
+                <div className="font-medium mb-1 group-hover:text-blue-100 transition-colors">
+                  Start Quiz with {presetFeedback === 'immediate' ? 'Immediate Feedback' : 'End Feedback'}
+                </div>
+                <div className="text-sm text-blue-100">
+                  {presetFeedback === 'immediate' 
+                    ? 'You will see if your answer is correct after each question'
+                    : 'You will see all results only after completing the quiz'
+                  }
+                </div>
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-base font-semibold text-stone-900 mb-4">Select Feedback Mode</h2>
 
-          <div className="space-y-3">
-            <button
-              onClick={() => handleStartQuiz('immediate')}
-              className="w-full p-4 border border-stone-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 text-left group"
-            >
-              <div className="font-medium text-stone-900 mb-1 group-hover:text-blue-700 transition-colors">Immediate Feedback</div>
-              <div className="text-sm text-stone-500">
-                See if your answer is correct after each question
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleStartQuiz('immediate')}
+                  className="w-full p-4 border border-stone-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 text-left group"
+                >
+                  <div className="font-medium text-stone-900 mb-1 group-hover:text-blue-700 transition-colors">Immediate Feedback</div>
+                  <div className="text-sm text-stone-500">
+                    See if your answer is correct after each question
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleStartQuiz('end')}
+                  className="w-full p-4 border border-stone-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 text-left group"
+                >
+                  <div className="font-medium text-stone-900 mb-1 group-hover:text-blue-700 transition-colors">End Feedback</div>
+                  <div className="text-sm text-stone-500">
+                    See all results only after completing the quiz
+                  </div>
+                </button>
               </div>
-            </button>
-
-            <button
-              onClick={() => handleStartQuiz('end')}
-              className="w-full p-4 border border-stone-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 text-left group"
-            >
-              <div className="font-medium text-stone-900 mb-1 group-hover:text-blue-700 transition-colors">End Feedback</div>
-              <div className="text-sm text-stone-500">
-                See all results only after completing the quiz
-              </div>
-            </button>
-          </div>
+            </>
+          )}
         </div>
       </div>
     )
@@ -456,8 +495,9 @@ export default function TakeQuizPage() {
       <div className="flex items-center justify-between">
         <button
           onClick={handlePrevious}
-          disabled={currentIndex === 0}
+          disabled={!backtrackingEnabled || currentIndex === 0}
           className="btn-ghost"
+          title={!backtrackingEnabled ? 'Backtracking is disabled for this quiz' : ''}
         >
           <ArrowLeft className="w-4 h-4" />
           Previous
@@ -511,15 +551,18 @@ export default function TakeQuizPage() {
           const hasAnswerForQ = (answers[q.id]?.length || 0) > 0
           const isSkipped = skippedQuestions.includes(q.id)
           const isCurrent = idx === currentIndex
+          const canNavigate = backtrackingEnabled || idx >= currentIndex
 
           return (
             <button
               key={q.id}
               onClick={() => {
+                if (!canNavigate) return
                 setCurrentIndex(idx)
                 setShowFeedback(false)
                 setShowHint(false)
               }}
+              disabled={!canNavigate}
               className={`w-8 h-8 rounded-lg text-xs font-medium transition-all duration-200 ${
                 isCurrent
                   ? 'bg-blue-600 text-white shadow-warm-sm'
@@ -527,7 +570,9 @@ export default function TakeQuizPage() {
                     ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                     : isSkipped
                       ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                      : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                      : canNavigate
+                        ? 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                        : 'bg-stone-50 text-stone-300 cursor-not-allowed'
               }`}
             >
               {idx + 1}

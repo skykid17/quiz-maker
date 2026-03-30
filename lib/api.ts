@@ -1,4 +1,4 @@
-import type { Quiz, QuizDraft, Attempt, Progress, QuizWithStats, Question } from './supabase/types'
+import type { Quiz, QuizDraft, Attempt, Progress, QuizWithStats, Question, FeedbackMode } from './supabase/types'
 
 const API_BASE = '/api'
 
@@ -11,6 +11,8 @@ interface DraftInput {
   timeLimit?: number | null
   tags?: string[]
   autoGenerateShareCode?: boolean
+  feedbackMode?: FeedbackMode
+  backtracking?: boolean
   questions?: Question[]
   currentStep?: number
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -14,22 +14,54 @@ import {
   Trophy,
   AlertCircle,
   ArrowLeft,
+  Save,
+  X as XIcon,
+  RotateCcw,
+  MessageSquare,
+  Loader2,
 } from 'lucide-react'
 import { quizApi } from '@/lib/api'
+import { generateQuizSummary } from '@/lib/quizHelpers'
+import QuizMetadataForm from '@/components/QuizMetadataForm'
+import QuestionListManager from '@/components/QuestionListManager'
 import ShareModal from '@/components/ShareModal'
-import type { Quiz, Attempt } from '@/lib/supabase/types'
+import type { Quiz, Attempt, Question, FeedbackMode } from '@/lib/supabase/types'
+
+type EditView = 'details' | 'questions'
+
+interface QuizMetadata {
+  title: string
+  description: string
+  timeLimit: number | null
+  tags: string[]
+  feedbackMode: FeedbackMode
+  backtracking: boolean
+}
 
 export default function QuizDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
+  
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [attempts, setAttempts] = useState<Attempt[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showShare, setShowShare] = useState(false)
-  const [editing, setEditing] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false)
+  const [editView, setEditView] = useState<EditView>('details')
+  const [isSaving, setIsSaving] = useState(false)
+  const [editData, setEditData] = useState<QuizMetadata>({
+    title: '',
+    description: '',
+    timeLimit: null,
+    tags: [],
+    feedbackMode: null,
+    backtracking: true,
+  })
+  const [editQuestions, setEditQuestions] = useState<Question[]>([])
 
   useEffect(() => {
     loadQuiz()
@@ -40,6 +72,15 @@ export default function QuizDetailPage() {
       const response = await quizApi.get(id)
       setQuiz(response.quiz)
       setAttempts(response.attempts || [])
+      setEditData({
+        title: response.quiz.title,
+        description: response.quiz.description || '',
+        timeLimit: response.quiz.time_limit || null,
+        tags: response.quiz.tags || [],
+        feedbackMode: response.quiz.feedback_mode ?? null,
+        backtracking: response.quiz.backtracking ?? true,
+      })
+      setEditQuestions(response.quiz.questions || [])
     } catch (err) {
       console.error('Failed to load quiz:', err)
       setError(err instanceof Error ? err.message : 'Failed to load quiz')
@@ -48,13 +89,63 @@ export default function QuizDetailPage() {
     }
   }
 
-  async function handleRename() {
+  const handleStartEdit = () => {
+    if (!quiz) return
+    setEditData({
+      title: quiz.title,
+      description: quiz.description || '',
+      timeLimit: quiz.time_limit || null,
+      tags: quiz.tags || [],
+      feedbackMode: quiz.feedback_mode ?? null,
+      backtracking: quiz.backtracking ?? true,
+    })
+    setEditQuestions(quiz.questions || [])
+    setIsEditing(true)
+    setEditView('details')
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditView('details')
+    setEditData({
+      title: quiz?.title || '',
+      description: quiz?.description || '',
+      timeLimit: quiz?.time_limit || null,
+      tags: quiz?.tags || [],
+      feedbackMode: quiz?.feedback_mode ?? null,
+      backtracking: quiz?.backtracking ?? true,
+    })
+    setEditQuestions(quiz?.questions || [])
+  }
+
+  const handleMetadataChange = (updates: Partial<QuizMetadata>) => {
+    setEditData(prev => ({ ...prev, ...updates }))
+  }
+
+  const handleQuestionsChange = useCallback((questions: Question[]) => {
+    setEditQuestions(questions)
+  }, [])
+
+  const handleSave = async () => {
+    if (!quiz || !isEditing) return
+    
+    setIsSaving(true)
     try {
-      await quizApi.update(id, { title: newTitle })
-      setQuiz({ ...quiz!, title: newTitle })
-      setEditing(false)
+      const updatedQuiz = await quizApi.update(id, {
+        title: editData.title,
+        description: editData.description,
+        time_limit: editData.timeLimit,
+        tags: editData.tags,
+        feedback_mode: editData.feedbackMode,
+        backtracking: editData.backtracking,
+        questions: editQuestions,
+      })
+      setQuiz(updatedQuiz)
+      setIsEditing(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to rename')
+      setError(err instanceof Error ? err.message : 'Failed to save changes')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -104,6 +195,12 @@ export default function QuizDetailPage() {
     return 'text-red-600'
   }
 
+  function getFeedbackModeLabel(mode: FeedbackMode) {
+    if (mode === 'immediate') return 'Immediate'
+    if (mode === 'end') return 'End'
+    return 'User Choice'
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -126,6 +223,88 @@ export default function QuizDetailPage() {
 
   const bestScore = attempts.length > 0 ? Math.max(...attempts.map((a) => a.percentage)) : null
 
+  // Edit mode UI
+  if (isEditing) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={handleCancelEdit}
+            className="inline-flex items-center gap-1.5 text-stone-500 hover:text-stone-700 text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Cancel
+          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCancelEdit}
+              className="btn-ghost text-sm"
+            >
+              <XIcon className="w-4 h-4" />
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="btn-primary text-sm"
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+            <span className="text-red-700 text-sm">{error}</span>
+            <button onClick={() => setError(null)} className="ml-auto text-red-500 hover:text-red-700 text-lg leading-none">
+              ×
+            </button>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 mb-6">
+          <button
+            onClick={() => setEditView('details')}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+              editView === 'details'
+                ? 'bg-blue-600 text-white shadow-warm-sm'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+            }`}
+          >
+            Details
+          </button>
+          <button
+            onClick={() => setEditView('questions')}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+              editView === 'questions'
+                ? 'bg-blue-600 text-white shadow-warm-sm'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+            }`}
+          >
+            Questions
+          </button>
+        </div>
+
+        <div className="card p-6 sm:p-8">
+          {editView === 'details' && (
+            <QuizMetadataForm data={editData} onChange={handleMetadataChange} />
+          )}
+          {editView === 'questions' && (
+            <QuestionListManager
+              questions={editQuestions}
+              onChange={handleQuestionsChange}
+              quizId={quiz.id}
+            />
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // View mode UI
   return (
     <div>
       <Link
@@ -146,36 +325,16 @@ export default function QuizDetailPage() {
       <div className="card p-6 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex-1 min-w-0">
-            {editing ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="input-field text-xl font-semibold"
-                  autoFocus
-                />
-                <button onClick={handleRename} className="btn-primary text-sm py-2">
-                  Save
-                </button>
-                <button onClick={() => setEditing(false)} className="btn-ghost text-sm py-2">
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-semibold text-stone-900 truncate">{quiz.title}</h1>
-                <button
-                  onClick={() => {
-                    setNewTitle(quiz.title)
-                    setEditing(true)
-                  }}
-                  className="p-1.5 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-100 transition-all duration-200 flex-shrink-0"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold text-stone-900 truncate">{quiz.title}</h1>
+              <button
+                onClick={handleStartEdit}
+                className="p-1.5 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-100 transition-all duration-200 flex-shrink-0"
+                title="Edit quiz"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            </div>
 
             {quiz.description && (
               <p className="text-stone-500 text-sm mt-1.5">{quiz.description}</p>
@@ -191,6 +350,14 @@ export default function QuizDetailPage() {
                   {quiz.time_limit} min
                 </span>
               )}
+              <span className="badge-stone">
+                <MessageSquare className="w-3 h-3 mr-1" />
+                {getFeedbackModeLabel(quiz.feedback_mode)}
+              </span>
+              <span className={`badge-stone ${quiz.backtracking ? 'badge-emerald' : 'badge-red'}`}>
+                <RotateCcw className="w-3 h-3 mr-1" />
+                {quiz.backtracking ? 'Backtrack On' : 'Backtrack Off'}
+              </span>
               {bestScore !== null && (
                 <span className="badge-amber">
                   <Trophy className="w-3 h-3 mr-1" />
@@ -203,6 +370,16 @@ export default function QuizDetailPage() {
                 </span>
               )}
             </div>
+
+            {quiz.tags && quiz.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {quiz.tags.map((tag, index) => (
+                  <span key={index} className="badge-blue">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <Link
@@ -216,6 +393,13 @@ export default function QuizDetailPage() {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
+        <button
+          onClick={handleStartEdit}
+          className="btn-secondary text-sm"
+        >
+          <Edit2 className="w-4 h-4" />
+          Edit Quiz
+        </button>
         <button
           onClick={() => setShowShare(true)}
           className="btn-secondary text-sm"
