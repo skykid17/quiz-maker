@@ -103,12 +103,20 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const { title } = await request.json()
+    const body = await request.json()
+    const { title, description, time_limit, tags, feedback_mode, backtracking } = body
+
+    const updateData: Record<string, unknown> = { title }
+    if (description !== undefined) updateData.description = description
+    if (time_limit !== undefined) updateData.time_limit = time_limit
+    if (tags !== undefined) updateData.tags = tags
+    if (feedback_mode !== undefined) updateData.feedback_mode = feedback_mode
+    if (backtracking !== undefined) updateData.backtracking = backtracking
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: updatedQuiz, error } = await (supabase as any)
       .from('quizzes')
-      .update({ title })
+      .update(updateData)
       .eq('id', id)
       .eq('user_id', user.id)
       .select()
