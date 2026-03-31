@@ -46,27 +46,37 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Verify user owns this quiz
-    const { quiz, error: ownershipError } = await verifyQuizOwnership(supabase, id, user.id)
+    // Fetch quiz and attempts in parallel
+    const [{ data: quiz, error: quizError }, { data: attempts }] = await Promise.all([
+      supabase
+        .from('quizzes')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single(),
+      supabase
+        .from('attempts')
+        .select('id, score, total_points, percentage, completed_at, duration, mode, questions_skipped')
+        .eq('quiz_id', id)
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false }),
+    ])
 
-    if (ownershipError) {
-      return NextResponse.json(
-        { error: ownershipError.message },
-        { status: ownershipError.status }
-      )
+    if (quizError) {
+      if (quizError.code === 'PGRST116') {
+        return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
+      }
+      return NextResponse.json({ error: quizError.message }, { status: 500 })
     }
 
-    // Get attempt history for this user's attempts on this quiz
-    const { data: attempts } = await supabase
-      .from('attempts')
-      .select(
-        'id, score, total_points, percentage, completed_at, duration, mode, questions_skipped'
-      )
-      .eq('quiz_id', id)
-      .eq('user_id', user.id)
-      .order('completed_at', { ascending: false })
-
-    return NextResponse.json({ quiz, attempts: attempts || [] })
+    return NextResponse.json(
+      { quiz, attempts: attempts || [] },
+      {
+        headers: {
+          'Cache-Control': 'private, max-age=10, stale-while-revalidate=30',
+        },
+      }
+    )
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to fetch quiz'
     return NextResponse.json({ error: message }, { status: 500 })

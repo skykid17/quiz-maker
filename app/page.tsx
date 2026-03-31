@@ -14,6 +14,7 @@ import {
   Search,
 } from 'lucide-react'
 import { quizApi } from '@/lib/api'
+import { getQuizCache, setQuizCache } from '@/lib/quizCache'
 import ImportModal from '@/components/ImportModal'
 import { ProtectedPage } from '@/components/ProtectedPage'
 import type { Quiz, QuizWithStats } from '@/lib/supabase/types'
@@ -199,8 +200,14 @@ interface QuizCardProps {
 }
 
 function QuizCard({ quiz, onDelete }: QuizCardProps) {
+  const handlePrefetch = () => {
+    if (!getQuizCache(quiz.id)) {
+      quizApi.get(quiz.id).then(data => setQuizCache(quiz.id, data))
+    }
+  }
+
   return (
-    <div className="card-hover p-5 group">
+    <div className="card-hover p-5 group" onMouseEnter={handlePrefetch}>
       <Link href={`/quiz/${quiz.id}`}>
         <h3 className="font-semibold text-stone-900 mb-3 line-clamp-2 text-[15px] leading-snug">
           {quiz.title}
