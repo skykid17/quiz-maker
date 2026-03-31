@@ -7,10 +7,11 @@ interface TimerProps {
   initialSeconds: number
   onExpire: () => void
   className?: string
+  elapsedSeconds?: number
 }
 
-export default function Timer({ initialSeconds, onExpire, className = '' }: TimerProps) {
-  const [seconds, setSeconds] = useState(initialSeconds)
+export default function Timer({ initialSeconds, onExpire, className = '', elapsedSeconds = 0 }: TimerProps) {
+  const [seconds, setSeconds] = useState(initialSeconds - elapsedSeconds)
 
   useEffect(() => {
     if (seconds <= 0) {

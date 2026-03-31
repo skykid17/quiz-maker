@@ -80,6 +80,9 @@ export interface Progress {
   backtracking_enabled: boolean
   started_at: string
   updated_at: string
+  elapsed_seconds: number
+  question_order: number[]
+  option_orders: Record<string, number[]>
 }
 
 // API response types (camelCase for frontend)

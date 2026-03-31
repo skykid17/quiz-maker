@@ -62,21 +62,24 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const body = await request.json()
 
+    const progressData = {
+      user_id: user.id,
+      quiz_id: quizId,
+      current_question_index: body.currentQuestionIndex || 0,
+      answers: body.answers || {},
+      skipped_questions: body.skippedQuestions || [],
+      mode: body.mode || null,
+      backtracking_enabled: body.backtrackingEnabled ?? true,
+      elapsed_seconds: body.elapsedSeconds || 0,
+      question_order: body.questionOrder || [],
+      option_orders: body.optionOrders || {},
+    }
+
     // Upsert progress using user_id + quiz_id as composite key
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: progress, error } = await (supabase as any)
       .from('progress')
-      .upsert(
-        {
-          user_id: user.id,
-          quiz_id: quizId,
-          current_question_index: body.currentQuestionIndex || 0,
-          answers: body.answers || {},
-          skipped_questions: body.skippedQuestions || [],
-          mode: body.mode || null,
-        },
-        { onConflict: 'quiz_id,user_id' }
-      )
+      .upsert(progressData, { onConflict: 'quiz_id,user_id' })
       .select()
       .single()
 

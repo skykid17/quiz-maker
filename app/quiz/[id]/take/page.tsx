@@ -44,6 +44,9 @@ export default function TakeQuizPage() {
   const [answers, setAnswers] = useState<Record<string, string[]>>({})
   const [skippedQuestions, setSkippedQuestions] = useState<string[]>([])
   const [startedAt, setStartedAt] = useState<string>('')
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [shuffledQuestionOrder, setShuffledQuestionOrder] = useState<number[]>([])
+  const [shuffledOptionOrders, setShuffledOptionOrders] = useState<Record<string, number[]>>({})
   const [showHint, setShowHint] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -51,6 +54,22 @@ export default function TakeQuizPage() {
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hasUnsavedChanges = useRef(false)
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (mode && !isSubmitting) {
+      timerIntervalRef.current = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1)
+        hasUnsavedChanges.current = true
+      }, 1000)
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current)
+      }
+    }
+  }, [mode, isSubmitting])
 
   useEffect(() => {
     loadQuizAndProgress()
@@ -73,6 +92,9 @@ export default function TakeQuizPage() {
         setSkippedQuestions(progress.skipped_questions || [])
         setStartedAt(progress.started_at || new Date().toISOString())
         setBacktrackingEnabled(progress.backtracking_enabled ?? true)
+        setElapsedSeconds(progress.elapsed_seconds || 0)
+        setShuffledQuestionOrder(progress.question_order || [])
+        setShuffledOptionOrders(progress.option_orders || {})
       } else {
         setBacktrackingEnabled(quizResponse.quiz.backtracking ?? true)
       }
@@ -93,12 +115,15 @@ export default function TakeQuizPage() {
         skipped_questions: skippedQuestions,
         mode,
         backtracking_enabled: backtrackingEnabled,
+        elapsed_seconds: elapsedSeconds,
+        question_order: shuffledQuestionOrder,
+        option_orders: shuffledOptionOrders,
       })
       hasUnsavedChanges.current = false
     } catch (err) {
       console.error('Failed to save progress:', err)
     }
-  }, [id, mode, backtrackingEnabled, currentIndex, answers, skippedQuestions])
+  }, [id, mode, backtrackingEnabled, currentIndex, answers, skippedQuestions, elapsedSeconds, shuffledQuestionOrder, shuffledOptionOrders])
 
   useEffect(() => {
     if (!mode || !hasUnsavedChanges.current) return
@@ -116,7 +141,7 @@ export default function TakeQuizPage() {
         clearTimeout(saveTimeoutRef.current)
       }
     }
-  }, [answers, currentIndex, skippedQuestions, saveProgress, mode])
+  }, [answers, currentIndex, skippedQuestions, saveProgress, mode, elapsedSeconds, shuffledQuestionOrder, shuffledOptionOrders])
 
   const handleStartQuiz = (selectedMode: FeedbackMode) => {
     setMode(selectedMode)
@@ -124,8 +149,29 @@ export default function TakeQuizPage() {
     setCurrentIndex(0)
     setAnswers({})
     setSkippedQuestions([])
+    setElapsedSeconds(0)
     if (backtrackingEnabled === null && quiz) {
       setBacktrackingEnabled(quiz.backtracking ?? true)
+    }
+
+    if (quiz) {
+      const questionOrder = [...Array(quiz.questions.length).keys()]
+      for (let i = questionOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questionOrder[i], questionOrder[j]] = [questionOrder[j], questionOrder[i]]
+      }
+      setShuffledQuestionOrder(questionOrder)
+
+      const optionOrders: Record<string, number[]> = {}
+      quiz.questions.forEach((q) => {
+        const order = [...Array(q.answerOptions.length).keys()]
+        for (let i = order.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [order[i], order[j]] = [order[j], order[i]]
+        }
+        optionOrders[q.id] = order
+      })
+      setShuffledOptionOrders(optionOrders)
     }
   }
 
@@ -329,12 +375,20 @@ export default function TakeQuizPage() {
     )
   }
 
-  const question = quiz.questions[currentIndex]
+  const question = shuffledQuestionOrder.length > 0 
+    ? quiz.questions[shuffledQuestionOrder[currentIndex]]
+    : quiz.questions[currentIndex]
   const selectedAnswers = answers[question.id] || []
   const isLastQuestion = currentIndex === quiz.questions.length - 1
   const hasAnswer = selectedAnswers.length > 0
 
-  const correctOptionIds = question.answerOptions
+  const originalQuestionIndex = shuffledQuestionOrder.length > 0 ? shuffledQuestionOrder[currentIndex] : currentIndex
+  const questionOptionOrder = shuffledOptionOrders[question.id] || []
+  const shuffledOptions = questionOptionOrder.length > 0
+    ? questionOptionOrder.map((idx) => question.answerOptions[idx])
+    : question.answerOptions
+
+  const correctOptionIds = shuffledOptions
     .filter((opt) => opt.isCorrect)
     .map((opt) => opt.id)
   const isCorrect =
@@ -356,6 +410,7 @@ export default function TakeQuizPage() {
           <Timer
             initialSeconds={quiz.time_limit * 60}
             onExpire={handleTimerExpire}
+            elapsedSeconds={elapsedSeconds}
           />
         )}
       </div>
@@ -416,7 +471,7 @@ export default function TakeQuizPage() {
         </div>
 
         <div className="space-y-3">
-          {question.answerOptions.map((option) => {
+          {shuffledOptions.map((option) => {
             const isSelected = selectedAnswers.includes(option.id)
             const showCorrect = showFeedback && option.isCorrect
             const showWrong = showFeedback && isSelected && !option.isCorrect
@@ -493,17 +548,18 @@ export default function TakeQuizPage() {
       </div>
 
       <div className="flex items-center justify-between">
-        <button
-          onClick={handlePrevious}
-          disabled={!backtrackingEnabled || currentIndex === 0}
-          className="btn-ghost"
-          title={!backtrackingEnabled ? 'Backtracking is disabled for this quiz' : ''}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Previous
-        </button>
+        {backtrackingEnabled !== false && (
+          <button
+            onClick={handlePrevious}
+            disabled={currentIndex === 0}
+            className="btn-ghost"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Previous
+          </button>
+        )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           {!showFeedback && (
             <button onClick={handleSkip} className="btn-ghost">
               <SkipForward className="w-4 h-4" />
@@ -547,18 +603,19 @@ export default function TakeQuizPage() {
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-1.5">
-        {quiz.questions.map((q, idx) => {
+        {(shuffledQuestionOrder.length > 0 ? shuffledQuestionOrder : [...Array(quiz.questions.length).keys()]).map((originalIdx, displayIdx) => {
+          const q = quiz.questions[originalIdx]
           const hasAnswerForQ = (answers[q.id]?.length || 0) > 0
           const isSkipped = skippedQuestions.includes(q.id)
-          const isCurrent = idx === currentIndex
-          const canNavigate = backtrackingEnabled || idx >= currentIndex
+          const isCurrent = displayIdx === currentIndex
+          const canNavigate = backtrackingEnabled !== false || displayIdx >= currentIndex
 
           return (
             <button
               key={q.id}
               onClick={() => {
                 if (!canNavigate) return
-                setCurrentIndex(idx)
+                setCurrentIndex(displayIdx)
                 setShowFeedback(false)
                 setShowHint(false)
               }}
@@ -575,7 +632,7 @@ export default function TakeQuizPage() {
                         : 'bg-stone-50 text-stone-300 cursor-not-allowed'
               }`}
             >
-              {idx + 1}
+              {displayIdx + 1}
             </button>
           )
         })}
